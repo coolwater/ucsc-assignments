@@ -1,0 +1,154 @@
+ERICSSON+esheega@MRX1319 MINGW64 ~
+$ ssh -i "C:\Users\esheega\.ssh\Sheetal-IoT1.pem"  ec2-user@ec2-34-209-111-236.us-west-2.compute.amazonaws.com
+Last login: Wed Oct  4 02:36:16 2017 from bowers-fw.ucsc-extension.edu
+[ec2-user@ip-172-31-30-181 ~]$
+[ec2-user@ip-172-31-30-181 ~]$
+[ec2-user@ip-172-31-30-181 ~]$
+[ec2-user@ip-172-31-30-181 ~]$ openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+...........................................+++
+........+++
+[ec2-user@ip-172-31-30-181 ~]$
+[ec2-user@ip-172-31-30-181 ~]$ openssl rsa -pubout -in private_key.pem -out public_key.pem
+writing RSA key
+[ec2-user@ip-172-31-30-181 ~]$ cat public_key.pem
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvkmhBKAKnrkbUbKbo2Dp
+pgmTI/K4A1lEIT9cVQuAMGHSjBt9Xy6f6WehoLYy/g/RDL94X5rnLHoohlraWZlZ
+xq7n6YnhABR58od4k/4odBIHi8Esyr6xD0v21pqPTHfAuJI6BPLUVwGoJemOUwgG
+uYKnvl2YTZpfYcpOsNpvV+a7dJleE5MBcWuEc+WqGMlKMTtTas5frix2DoivenYo
+WIIoZjlGVQ6ctDkCFg7FgAVkRxIIKTaA0BUOt0hqSCNjMC+Isowg0RdKsYP3tBpo
+qtCA9xxNwBts814Uyj8gzYilmqLegSVf7GBSFOAQLfzL70JAd5BMpulgDgr4GHEj
+lQIDAQAB
+-----END PUBLIC KEY-----
+[ec2-user@ip-172-31-30-181 ~]$
+------------------------------------------------------------------------------
+
+[ec2-user@ip-172-31-30-181 ~]$ echo "Hello IoT" > iot-data.txt
+[ec2-user@ip-172-31-30-181 ~]$ openssl aes-256-cbc -a -salt -in iot-data.txt -out iot-data.txt.enc
+enter aes-256-cbc encryption password:
+Verifying - enter aes-256-cbc encryption password:
+[ec2-user@ip-172-31-30-181 ~]$ cat iot-data.txt.enc
+U2FsdGVkX195ExsoO56Tt5BUi3Sk51jtPaxrNNV9O+c=
+[ec2-user@ip-172-31-30-181 ~]$
+
+
+------------------------------------------------------------------------------
+
+[ec2-user@ip-172-31-30-181 ~]$ openssl aes-256-cbc -d -a -salt -in iot-data.txt.enc -pass pass:abc123
+Hello IoT
+[ec2-user@ip-172-31-30-181 ~]$ echo "abc123" > passwdfile
+[ec2-user@ip-172-31-30-181 ~]$ openssl aes-256-cbc -d -a -salt -in iot-data.txt.enc -pass file:./passwdfile
+Hello IoT
+[ec2-user@ip-172-31-30-181 ~]$
+
+------------------------------------------------------------------------------
+[ec2-user@ip-172-31-30-181 ~]$
+[ec2-user@ip-172-31-30-181 ~]$ wget https://raw.githubusercontent.com/hinkmond/iot-big-data-processing-and-analytics/master/lab3-iot-gendata.txt.e         nc
+--2017-10-04 03:59:52--  https://raw.githubusercontent.com/hinkmond/iot-big-data-processing-and-analytics/master/lab3-iot-gendata.txt.enc
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 151.101.52.133
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|151.101.52.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 585 [text/plain]
+Saving to: ‘lab3-iot-gendata.txt.enc’
+
+100%[========================================================================================================>] 585         --.-K/s   in 0s
+
+2017-10-04 03:59:53 (149 MB/s) - ‘lab3-iot-gendata.txt.enc’ saved [585/585]
+
+[ec2-user@ip-172-31-30-181 ~]$ openssl aes-256-cbc -d -a -salt -in lab3-iot-gendata.txt.enc -pass file:./passwdfile > lab3-iot-gendata.txt
+[ec2-user@ip-172-31-30-181 ~]$  cat lab3-iot-gendata.txt
+77  84  76  68  81  82  103  85  73  82  82  63  77  79  86  101  62  87  74  102  76  100  104  74  62  88  60  65  98  81  82  92  79  90  81  7         8  98  85  94  93  65  77  96  95  64  79  71  70  90  63  78  64  103  61  92  82  90  61  96  65  74  90  96  73  89  96  90  104  73  89  82  8         9  97  70  64  65  86  85  81  77  85  75  95  96  75  82  83  91  96  76  83  73  71  90  99  67  99  71  81  77
+
+------------------------------------------------------------------------------
+[ec2-user@ip-172-31-30-181 ~]$ vi pyspark-hello-world.py
+[ec2-user@ip-172-31-30-181 ~]$ $SPARK_HOME/bin/spark-submit pyspark-hello-world.py
+ --> 101
+82 --> 7
+90 --> 6
+96 --> 6
+81 --> 5
+77 --> 5
+65 --> 4
+85 --> 4
+73 --> 4
+64 --> 3
+76 --> 3
+74 --> 3
+71 --> 3
+79 --> 3
+89 --> 3
+63 --> 2
+83 --> 2
+86 --> 2
+104 --> 2
+78 --> 2
+75 --> 2
+70 --> 2
+92 --> 2
+95 --> 2
+99 --> 2
+98 --> 2
+61 --> 2
+62 --> 2
+103 --> 2
+60 --> 1
+68 --> 1
+88 --> 1
+67 --> 1
+87 --> 1
+84 --> 1
+101 --> 1
+97 --> 1
+100 --> 1
+102 --> 1
+93 --> 1
+94 --> 1
+91 --> 1
+
+------------------------------------------------------------------------------
+[ec2-user@ip-172-31-30-181 ~]$ spark-submit wordcount.py lab3-iot-gendata.txt
+: 101
+60: 1
+68: 1
+88: 1
+63: 2
+64: 3
+65: 4
+67: 1
+82: 7
+83: 2
+81: 5
+86: 2
+87: 1
+84: 1
+85: 4
+104: 2
+101: 1
+97: 1
+78: 2
+100: 1
+77: 5
+76: 3
+75: 2
+74: 3
+73: 4
+71: 3
+70: 2
+102: 1
+90: 6
+93: 1
+92: 2
+95: 2
+94: 1
+79: 3
+96: 6
+91: 1
+99: 2
+98: 2
+61: 2
+62: 2
+89: 3
+103: 2
+[ec2-user@ip-172-31-30-181 ~]$
+
+------------------------------------------------------------------------------

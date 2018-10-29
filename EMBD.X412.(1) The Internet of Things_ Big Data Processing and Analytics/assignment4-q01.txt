@@ -1,0 +1,47 @@
+Q1. Explore MapReduce: Copy and paste these lines to see how to use Map and Reduce functions in Spark. Copy and paste
+the session output to submit for this Lab.
+Explore MapReduce: This PySpark program reads the text file 'lab3-iot-gendata.txt' and runs a normal WordCount MapReduce program. Where it splits the file into words separated by a space ' '. Then does the Map operation on the RDD, then performs the Reduce operation by the key field of the tuple (which is the word). The collect() action actually triggers execution of the above plan, peforms the flatmap, map and then reduce actions. The for loop prints the word count, or frequency of occurance of each word in the provided input text file.
+: 101
+60: 1
+68: 1
+88: 1
+63: 2
+64: 3
+65: 4
+67: 1
+82: 7
+83: 2
+81: 5
+86: 2
+87: 1
+84: 1
+85: 4
+104: 2
+101: 1
+97: 1
+78: 2
+100: 1
+77: 5
+76: 3
+75: 2
+74: 3
+73: 4
+71: 3
+70: 2
+102: 1
+90: 6
+93: 1
+92: 2
+95: 2
+94: 1
+79: 3
+96: 6
+91: 1
+99: 2
+98: 2
+61: 2
+62: 2
+89: 3
+103: 2
+>>> # Quit the shell
+... quit()

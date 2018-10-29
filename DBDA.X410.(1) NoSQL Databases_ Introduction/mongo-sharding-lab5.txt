@@ -1,0 +1,148 @@
+# Shell-1: Cleanup DBs and shutdown mongod
+vagrant up
+vagrant ssh
+sudo service mongod stop
+sudo rm -fr /data/shard1
+sudo rm -fr /data/shard2
+sudo rm -fr /data/shard3
+sudo rm -fr /data/configsrv
+exit
+
+# Shell-1: Make directories for mongod
+vagrant ssh
+sudo mkdir -p /data
+sudo chmod 777 /data
+
+mkdir -p /data/shard1/db01
+mkdir -p /data/shard1/db02
+mkdir -p /data/shard1/db03
+
+mkdir -p /data/shard2/db01
+mkdir -p /data/shard2/db02
+mkdir -p /data/shard2/db03
+
+mkdir -p /data/configsrv
+
+# Shell-1: Replica Set 01 - rzset01
+mongod --shardsvr --replSet rzset01 --dbpath /data/shard1/db01 --port 27019
+# Shell-2: Replica Set 01 - rzset01
+mongod --shardsvr --replSet rzset01 --dbpath /data/shard1/db02 --port 27020
+# Shell-3: Replica Set 02 - rzset02
+mongod --shardsvr --replSet rzset02 --dbpath /data/shard2/db01 --port 27021
+# Shell-4: Replica Set 02 - rzset02
+mongod --shardsvr --replSet rzset02 --dbpath /data/shard2/db02 --port 27022
+
+# Shell-5: Start Config Server
+mongod --configsvr --replSet rzsetConfig --dbpath /data/configsrv --port 27018
+
+# Shell-6: Start Query Router
+mongos --configdb rzsetConfig/localhost:27018 --port 27017
+
+# Shell-7: Configuration of 1st replica-set
+mongo localhost:27019
+>
+config = {
+	_id : "rzset01",
+	members : [
+		{_id : 0, host : "localhost:27019"},
+		{_id : 1, host : "localhost:27020"}
+	]
+}
+
+>rs.initiate(config)
+
+# Shell-8: Configuration of 2nd replica-set
+mongo localhost:27021
+>
+config = {
+	_id : "rzset02",
+	members : [
+		{_id : 0, host : "localhost:27021"},
+		{_id : 1, host : "localhost:27022"}
+	]
+}
+
+>rs.initiate(config)
+
+# Shell-9: login to configuration server
+# configDB is in its own replica-set
+mongo --host localhost --port 27018
+
+>rs.initiate( {
+	_id: "rzsetConfig",
+	configsvr: true,
+	members: [
+		{ _id : 0, host : "localhost:27018" }
+	]
+} )
+
+# Shell-10: add the shards
+# open mongo shell to query router, it is on default port
+mongo localhost:27017
+mongos>
+# setup shards
+sh.addShard("rzset01/localhost:27019,localhost:27020")
+sh.addShard("rzset02/localhost:27021,localhost:27022")
+
+# see the shards configured
+db.getSiblingDB("config").shards.find()
+use admin
+db.runCommand({listshards: 1})
+
+# other way to see shards configured
+# sh.help() - sharding helper
+# rs.help() - replica-set helper
+sh.status()
+# you can do show dbs in all shells if necessary
+show dbs
+sh.enableSharding("test")
+sh.status()
+# shard the collection
+sh.shardCollection("test.users", {"username" : "hashed"})
+sh.status()
+
+# add documents into the collection
+use test
+for (var i=0; i<100000; i++) {
+	db.users.insert({"username" : "user"+i, "created_at" : new Date()});
+}
+db.users.find().count()
+
+# shell-10 mongos - query router shell
+use test
+db.users.getShardDistribution()
+db.users.find({username: "user62123"})
+db.users.find({username: "user62123"}).explain()
+db.users.find({username: "user80000"}).explain()
+
+# Shell-7: monitor insert progress in 1st replica-set
+# go to replica-set/shard 01 shell
+db.users.find().count()
+db.users.find().count()
+db.users.find().count()
+db.users.find().limit(3)
+db.users.find().limit(3).skip(1000)
+
+# Shell-8: monitor insert progress in 2nd replica-set
+db.users.find().count()
+db.users.find().count()
+db.users.find().count()
+db.users.find().limit(3)
+db.users.find().limit(3).skip(1000)
+
+# Shell-7: Mongo Replication Example
+db.users.find().count()
+db.isMaster()
+db.isMaster().ismaster
+use admin
+db.shutdownServer()
+
+# Shell-11: login to secondary 1st replica-set
+mongo localhost:27020
+rzset01:SECONDARY>
+rs.status()
+db.users.count()
+
+# Shell-12: login to secondary 2st replica-set
+mongo localhost:27022
+rzset02:SECONDARY>

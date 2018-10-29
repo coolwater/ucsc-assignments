@@ -1,0 +1,112 @@
+---
+title: "Introduction to Data Analysis - Assignment #1"
+author: 
+- name: "Sheetal Gangakhedkar"
+  affiliation: UCSC Extension
+date: "April 23, 2017"
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Questions
+
+**1. What are the measures of central tendency of data? What is the order of these measures for skewed data?**
+
+A single value that represents the middle or centre of a data distribution is called the measure of central tendency. There are three main measures, the mode - which is the most commonly occurring value in the distribution, the median - is the middle value in a sorted (ascending/descending) distribution, and the mean - is the arithmetic average of a given numerical dataset.
+
+For skewed distributions, the median is the preferred central tendency measure, as it is less affected by the outliers in a skewed data set. This is followed by the mode as central tendency measure, as it remains the most commonly occurring value in the distribution. The mean as a central tendency measure is more sensitive to the existence of outliers than the median or mode, in a positively or right skewed distribution the mean is pulled towards the right tail, while in a negatively or left skewed distribution the mean is pulled towards the left tail.
+
+Measures of Central Tendency for seq(1:100, by=2) vector
+
+mode => No mode for continuous data (all values are different).
+
+```{r}
+odds=seq(1,100, by=2)
+median(odds)
+mean(odds)
+```
+**2. How can you measure variation of data?**
+
+Variation is a way to measure or show how data is spread out or dispersed in a given data set. There are many ways to measure variation, these include “range”, “quartile”, “lower quartile”, “upper quartile”, “interquartile range”, and “outlier”. A range is the difference between the greatest and the least data value. Quartiles are values that divide the data set into four equal parts. One fourth of the data lie below the lower quartile and one fourth of the data lie above the upper quartile. The upper and lower quartiles are the medians of the upper half and the lower half of a set of data, respectively. One half of the data that lie between the lower and upper quartile, is measured by interquartile range, that is the difference between the upper quartile and the lower quartile values. An outlier is a data value that is either much greater or much less than the media. Generally, if a data value is more than 1.5 times the value of the interquartile range beyond the upper or lower quartiles, is considered an outlier.
+
+Measures of variation for seq(1:100, by=2) vector
+
+```{r}
+odds=seq(1,100, by=2)
+# Range
+range(odds)
+# Quartile
+quantile(odds)
+# Lower quartile (Q1)
+quantile(odds)[2]
+# Upper quartile (Q3)
+quantile(odds)[4]
+# Interquartile Range
+quantile(odds)[4]-quantile(odds)[2]
+```
+Outlier: none,  for continuous data set
+
+**3. Create a vector of positive odd integers less than 100**
+
+```{r}
+odds=seq(1,100, by=2)
+odds
+```
+
+**4. Remove the values greater than 60 and less than 80**
+
+```{r}
+ss = odds[odds > 60 & odds < 80]
+ss
+```
+
+**5. Find the five number summary of the remaining set of values**
+
+```{r}
+fivenum(ss)
+```
+
+**6. Consider the following vector of values. X <-{8, 14, 9, 15, NA, 8,13, 2,9, NA}. Write an R program to return the positions of the missing values**
+
+```{r}
+X = c(8,14,9,15,NA,8,13,2,9,NA)
+X
+which(is.na(X))
+```
+
+**7. Write an R program to count the number of non-missing values**
+
+```{r}
+which(!is.na(X))
+length(which(!is.na(X)))
+```
+
+**8. Write an R program to replace the missing values with the mean of the non-missing values.**
+
+```{r}
+X[which(is.na(X))] = mean(X[which(!is.na(X))])
+X
+```
+
+**9. Load mtcars data. Write an R program that will rearrange the rows of the data frame so that they are sorted by the value of Horsepower.**
+
+```{r mtcars}
+data(mtcars)
+head(mtcars)
+hpcars = mtcars[order(mtcars[,4]),]
+dim(hpcars)
+hpcars
+```
+
+**10. Write an R program to count the number of observations with cylinders greater than 4 and gear greater than 3.**
+
+```{r}
+mtcars[mtcars[,2]>4 & mtcars[,10]>3, ]
+nrow(mtcars[mtcars[,2]>4 & mtcars[,10]>3, ])
+```
+
+This 'R Markdown' file covers the 'Assignment-1' by instructor Pramod Gupta of the Introduction to Data Analysis class at UC Santa Cruz, Silicon Valley Extension.

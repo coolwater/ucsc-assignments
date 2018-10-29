@@ -1,0 +1,330 @@
+> show collections
+cityinfo
+> db.cityinfo.aggregate([{$group: {_id: "$state", totalPop:{$sum:"$pop"}}}])
+{ "_id" : "CA", "totalPop" : 29754890 }
+{ "_id" : "MT", "totalPop" : 798948 }
+{ "_id" : "MS", "totalPop" : 2573216 }
+{ "_id" : "FL", "totalPop" : 12686644 }
+{ "_id" : "AR", "totalPop" : 2350725 }
+{ "_id" : "GA", "totalPop" : 6478216 }
+{ "_id" : "WA", "totalPop" : 4866692 }
+{ "_id" : "SC", "totalPop" : 3486703 }
+{ "_id" : "MN", "totalPop" : 4372982 }
+{ "_id" : "NE", "totalPop" : 1578139 }
+{ "_id" : "MD", "totalPop" : 4781379 }
+{ "_id" : "TN", "totalPop" : 4876457 }
+{ "_id" : "DE", "totalPop" : 666168 }
+{ "_id" : "DC", "totalPop" : 606900 }
+{ "_id" : "AZ", "totalPop" : 3665228 }
+{ "_id" : "ME", "totalPop" : 1226648 }
+{ "_id" : "OR", "totalPop" : 2842321 }
+{ "_id" : "AL", "totalPop" : 4040587 }
+{ "_id" : "PA", "totalPop" : 11881643 }
+{ "_id" : "RI", "totalPop" : 1003218 }
+
+> db.cityinfo.aggregate([{$group: {_id: "$state", totalPop:{$sum:"$pop"}}}, {$match:{totalPop:{$gte:10000000}}}])
+{ "_id" : "CA", "totalPop" : 29754890 }
+{ "_id" : "FL", "totalPop" : 12686644 }
+{ "_id" : "PA", "totalPop" : 11881643 }
+{ "_id" : "NY", "totalPop" : 17990402 }
+{ "_id" : "OH", "totalPop" : 10846517 }
+{ "_id" : "IL", "totalPop" : 11427576 }
+{ "_id" : "TX", "totalPop" : 16984601 }
+
+>
+> db.cityinfo.aggregate([{$group:{_id:{state:"$state",city:"$city"},pop:{$sum:"$pop"}}}])
+{ "_id" : { "state" : "AK", "city" : "POINT BAKER" }, "pop" : 426 }
+{ "_id" : { "state" : "AK", "city" : "SKAGWAY" }, "pop" : 692 }
+{ "_id" : { "state" : "AK", "city" : "SITKA" }, "pop" : 8638 }
+{ "_id" : { "state" : "AK", "city" : "GUSTAVUS" }, "pop" : 258 }
+{ "_id" : { "state" : "AK", "city" : "ANGOON" }, "pop" : 1002 }
+{ "_id" : { "state" : "AK", "city" : "NUIQSUT" }, "pop" : 354 }
+{ "_id" : { "state" : "AK", "city" : "WHITE MOUNTAIN" }, "pop" : 194 }
+{ "_id" : { "state" : "AK", "city" : "VENETIE" }, "pop" : 184 }
+{ "_id" : { "state" : "AK", "city" : "TELLER" }, "pop" : 260 }
+{ "_id" : { "state" : "AK", "city" : "SHUNGNAK" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "SELAWIK" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "SHAKTOOLIK" }, "pop" : 183 }
+{ "_id" : { "state" : "AK", "city" : "SAVOONGA" }, "pop" : 519 }
+{ "_id" : { "state" : "AK", "city" : "RUBY" }, "pop" : 172 }
+{ "_id" : { "state" : "AK", "city" : "RAMPART" }, "pop" : 68 }
+{ "_id" : { "state" : "AK", "city" : "NOATAK" }, "pop" : 395 }
+{ "_id" : { "state" : "AK", "city" : "POINT LAY" }, "pop" : 139 }
+{ "_id" : { "state" : "AK", "city" : "NENANA" }, "pop" : 393 }
+{ "_id" : { "state" : "AK", "city" : "MINTO" }, "pop" : 228 }
+{ "_id" : { "state" : "AK", "city" : "DENALI NATIONAL" }, "pop" : 27 }
+Type "it" for more
+> db.cityinfo.aggregate([{$group:{_id:{state:"$state",city:"$city"}, pop:{$sum:"$pop"}}},{$group:{_id:"$_id.state",avgCityPop:{$avg
+:"$pop"}}}])
+{ "_id" : "DC", "avgCityPop" : 303450 }
+{ "_id" : "DE", "avgCityPop" : 14481.91304347826 }
+{ "_id" : "RI", "avgCityPop" : 19292.653846153848 }
+{ "_id" : "NJ", "avgCityPop" : 15775.89387755102 }
+{ "_id" : "MT", "avgCityPop" : 2593.987012987013 }
+{ "_id" : "CA", "avgCityPop" : 27756.42723880597 }
+{ "_id" : "KS", "avgCityPop" : 3819.884259259259 }
+{ "_id" : "MO", "avgCityPop" : 5672.195338512764 }
+{ "_id" : "NH", "avgCityPop" : 5232.320754716981 }
+{ "_id" : "OK", "avgCityPop" : 6155.743639921722 }
+{ "_id" : "NE", "avgCityPop" : 3034.882692307692 }
+{ "_id" : "CO", "avgCityPop" : 9981.075757575758 }
+{ "_id" : "LA", "avgCityPop" : 10465.496277915632 }
+{ "_id" : "ID", "avgCityPop" : 4320.811158798283 }
+{ "_id" : "IL", "avgCityPop" : 9954.334494773519 }
+{ "_id" : "AL", "avgCityPop" : 7907.2152641878665 }
+{ "_id" : "OR", "avgCityPop" : 8262.561046511628 }
+{ "_id" : "MD", "avgCityPop" : 12615.775725593667 }
+{ "_id" : "AR", "avgCityPop" : 4175.355239786856 }
+{ "_id" : "FL", "avgCityPop" : 27400.958963282937 }
+Type "it" for more
+>
+
+> db.cityinfo.aggregate([{$group:{_id:{state:"$state",city:"$city"},pop:{$sum:"$pop"}}},{$sort:{pop:1}}])
+{ "_id" : { "state" : "AK", "city" : "SHUNGNAK" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "SELAWIK" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "RUSSIAN MISSION" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "EMMONAK" }, "pop" : 0 }
+{ "_id" : { "state" : "OR", "city" : "KENT" }, "pop" : 0 }
+{ "_id" : { "state" : "HI", "city" : "NINOLE" }, "pop" : 0 }
+{ "_id" : { "state" : "CA", "city" : "OREGON HOUSE" }, "pop" : 0 }
+{ "_id" : { "state" : "NM", "city" : "MONUMENT" }, "pop" : 0 }
+{ "_id" : { "state" : "NM", "city" : "KIRTLAND A F B E" }, "pop" : 0 }
+{ "_id" : { "state" : "NM", "city" : "ALGODONES" }, "pop" : 0 }
+{ "_id" : { "state" : "NM", "city" : "OIL CENTER" }, "pop" : 0 }
+{ "_id" : { "state" : "CO", "city" : "CHEYENNE MTN AFB" }, "pop" : 0 }
+{ "_id" : { "state" : "TX", "city" : "ECLETO" }, "pop" : 0 }
+{ "_id" : { "state" : "AR", "city" : "TOMATO" }, "pop" : 0 }
+{ "_id" : { "state" : "OR", "city" : "LYONS" }, "pop" : 0 }
+{ "_id" : { "state" : "CA", "city" : "VINTON" }, "pop" : 0 }
+{ "_id" : { "state" : "OR", "city" : "ODELL" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "NAKNEK" }, "pop" : 0 }
+{ "_id" : { "state" : "AK", "city" : "CHEVAK" }, "pop" : 0 }
+{ "_id" : { "state" : "NY", "city" : "RAQUETTE LAKE" }, "pop" : 0 }
+Type "it" for more
+> db.cityinfo.aggregate([{$group:{_id:{state:"$state",city:"$city"},pop:{$sum:"$pop"}}},{$sort:{pop:-1}}])
+{ "_id" : { "state" : "IL", "city" : "CHICAGO" }, "pop" : 2452177 }
+{ "_id" : { "state" : "NY", "city" : "BROOKLYN" }, "pop" : 2300504 }
+{ "_id" : { "state" : "CA", "city" : "LOS ANGELES" }, "pop" : 2102295 }
+{ "_id" : { "state" : "TX", "city" : "HOUSTON" }, "pop" : 2095918 }
+{ "_id" : { "state" : "PA", "city" : "PHILADELPHIA" }, "pop" : 1610956 }
+{ "_id" : { "state" : "NY", "city" : "NEW YORK" }, "pop" : 1476790 }
+{ "_id" : { "state" : "NY", "city" : "BRONX" }, "pop" : 1209548 }
+{ "_id" : { "state" : "CA", "city" : "SAN DIEGO" }, "pop" : 1049298 }
+{ "_id" : { "state" : "MI", "city" : "DETROIT" }, "pop" : 963243 }
+{ "_id" : { "state" : "TX", "city" : "DALLAS" }, "pop" : 940191 }
+{ "_id" : { "state" : "AZ", "city" : "PHOENIX" }, "pop" : 890853 }
+{ "_id" : { "state" : "FL", "city" : "MIAMI" }, "pop" : 825232 }
+{ "_id" : { "state" : "CA", "city" : "SAN JOSE" }, "pop" : 816653 }
+{ "_id" : { "state" : "TX", "city" : "SAN ANTONIO" }, "pop" : 811792 }
+{ "_id" : { "state" : "MD", "city" : "BALTIMORE" }, "pop" : 733081 }
+{ "_id" : { "state" : "CA", "city" : "SAN FRANCISCO" }, "pop" : 723993 }
+{ "_id" : { "state" : "TN", "city" : "MEMPHIS" }, "pop" : 632837 }
+{ "_id" : { "state" : "CA", "city" : "SACRAMENTO" }, "pop" : 628279 }
+{ "_id" : { "state" : "FL", "city" : "JACKSONVILLE" }, "pop" : 610160 }
+{ "_id" : { "state" : "GA", "city" : "ATLANTA" }, "pop" : 609591 }
+Type "it" for more
+
+> db.cityinfo.aggregate( [ { $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } }, { $sort: { pop: 1 } }, {
+ $group: { _id : "$_id.state", biggestCity: { $last: "$_id.city" }, biggestPop: { $last: "$pop" }, smallestCity: { $first: "$_id.ci
+ty" }, smallestPop: { $first: "$pop" } } } ])
+{ "_id" : "DE", "biggestCity" : "NEWARK", "biggestPop" : 111674, "smallestCity" : "BETHEL", "smallestPop" : 108 }
+{ "_id" : "MS", "biggestCity" : "JACKSON", "biggestPop" : 204788, "smallestCity" : "CHUNKY", "smallestPop" : 79 }
+{ "_id" : "RI", "biggestCity" : "CRANSTON", "biggestPop" : 176404, "smallestCity" : "CLAYVILLE", "smallestPop" : 45 }
+{ "_id" : "MO", "biggestCity" : "SAINT LOUIS", "biggestPop" : 397802, "smallestCity" : "BENDAVIS", "smallestPop" : 44 }
+{ "_id" : "FL", "biggestCity" : "MIAMI", "biggestPop" : 825232, "smallestCity" : "CECIL FIELD NAS", "smallestPop" : 0 }
+{ "_id" : "AR", "biggestCity" : "LITTLE ROCK", "biggestPop" : 192895, "smallestCity" : "TOMATO", "smallestPop" : 0 }
+{ "_id" : "GA", "biggestCity" : "ATLANTA", "biggestPop" : 609591, "smallestCity" : "FORT STEWART", "smallestPop" : 0 }
+{ "_id" : "VT", "biggestCity" : "BURLINGTON", "biggestPop" : 39127, "smallestCity" : "UNIV OF VERMONT", "smallestPop" : 0 }
+{ "_id" : "NM", "biggestCity" : "ALBUQUERQUE", "biggestPop" : 449584, "smallestCity" : "MONUMENT", "smallestPop" : 0 }
+{ "_id" : "PA", "biggestCity" : "PHILADELPHIA", "biggestPop" : 1610956, "smallestCity" : "HAMILTON", "smallestPop" : 0 }
+{ "_id" : "KS", "biggestCity" : "WICHITA", "biggestPop" : 295115, "smallestCity" : "ARNOLD", "smallestPop" : 0 }
+{ "_id" : "MN", "biggestCity" : "MINNEAPOLIS", "biggestPop" : 344719, "smallestCity" : "JOHNSON", "smallestPop" : 12 }
+{ "_id" : "CA", "biggestCity" : "LOS ANGELES", "biggestPop" : 2102295, "smallestCity" : "OREGON HOUSE", "smallestPop" : 0 }
+{ "_id" : "MT", "biggestCity" : "BILLINGS", "biggestPop" : 78805, "smallestCity" : "HOMESTEAD", "smallestPop" : 7 }
+{ "_id" : "AL", "biggestCity" : "BIRMINGHAM", "biggestPop" : 242606, "smallestCity" : "ALLEN", "smallestPop" : 0 }
+{ "_id" : "OR", "biggestCity" : "PORTLAND", "biggestPop" : 518543, "smallestCity" : "KENT", "smallestPop" : 0 }
+{ "_id" : "MD", "biggestCity" : "BALTIMORE", "biggestPop" : 733081, "smallestCity" : "ANNAPOLIS JUNCTI", "smallestPop" : 32 }
+{ "_id" : "CO", "biggestCity" : "DENVER", "biggestPop" : 451182, "smallestCity" : "CHEYENNE MTN AFB", "smallestPop" : 0 }
+{ "_id" : "ME", "biggestCity" : "PORTLAND", "biggestPop" : 63268, "smallestCity" : "BUSTINS ISLAND", "smallestPop" : 0 }
+{ "_id" : "MA", "biggestCity" : "WORCESTER", "biggestPop" : 169856, "smallestCity" : "BUCKLAND", "smallestPop" : 16 }
+Type "it" for more
+
+
+> use testlookup
+switched to db testlookup
+> db.orders.insert( {"_id":1, "item":"abc", "price":12, "quantity":2 } )
+WriteResult({ "nInserted" : 1 })
+> db.orders.insert( {"_id":2, "item":"jkl", "price":20, "quantity":1 } )
+WriteResult({ "nInserted" : 1 })
+> db.orders.insert( {"_id":3} )
+WriteResult({ "nInserted" : 1 })
+> db.inventory.insert( {"_id":1, "sku":"abc", description: "product 1", "instock": 120 } )
+WriteResult({ "nInserted" : 1 })
+> db.inventory.insert( {"_id":2, "sku":"def", description: "product 2", "instock": 80 } )
+WriteResult({ "nInserted" : 1 })
+> db.inventory.insert( {"_id":3, "sku":"ijk", description: "product 3", "instock": 60 } )
+WriteResult({ "nInserted" : 1 })
+> db.inventory.insert( {"_id":4, "sku":"jkl", description: "product 4", "instock": 70 } )
+WriteResult({ "nInserted" : 1 })
+> db.inventory.insert( {"_id":5, "sku":"null", description: "Incomplete" } )
+WriteResult({ "nInserted" : 1 })
+> db.inventory.insert( {"_id":6 } )
+WriteResult({ "nInserted" : 1 })
+> db.orders.count()
+3
+> db.orders.find()
+{ "_id" : 1, "item" : "abc", "price" : 12, "quantity" : 2 }
+{ "_id" : 2, "item" : "jkl", "price" : 20, "quantity" : 1 }
+{ "_id" : 3 }
+> db.inventory.count()
+6
+> db.inventory.find()
+{ "_id" : 1, "sku" : "abc", "description" : "product 1", "instock" : 120 }
+{ "_id" : 2, "sku" : "def", "description" : "product 2", "instock" : 80 }
+{ "_id" : 3, "sku" : "ijk", "description" : "product 3", "instock" : 60 }
+{ "_id" : 4, "sku" : "jkl", "description" : "product 4", "instock" : 70 }
+{ "_id" : 5, "sku" : "null", "description" : "Incomplete" }
+{ "_id" : 6 }
+
+> db.orders.aggregate([
+...   {
+...     $lookup:
+... {
+...   from: "inventory",
+...   localField: "item",
+...   foreignField: "sku",
+...   as: "inventory_docs"
+... }
+...   }
+... ])
+{ "_id" : 1, "item" : "abc", "price" : 12, "quantity" : 2, "inventory_docs" : [ { "_id" : 1, "sku" : "abc", "description" : "produc
+t 1", "instock" : 120 } ] }
+{ "_id" : 2, "item" : "jkl", "price" : 20, "quantity" : 1, "inventory_docs" : [ { "_id" : 4, "sku" : "jkl", "description" : "produc
+t 4", "instock" : 70 } ] }
+{ "_id" : 3, "inventory_docs" : [ { "_id" : 6 } ] }
+
+> db.orders.aggregate([   {     $lookup: {   from: "inventory",   localField: "item",   foreignField: "sku",   as: "inventory_docs"
+ }   } ]).pretty()
+{
+        "_id" : 1,
+        "item" : "abc",
+        "price" : 12,
+        "quantity" : 2,
+        "inventory_docs" : [
+                {
+                        "_id" : 1,
+                        "sku" : "abc",
+                        "description" : "product 1",
+                        "instock" : 120
+                }
+        ]
+}
+{
+        "_id" : 2,
+        "item" : "jkl",
+        "price" : 20,
+        "quantity" : 1,
+        "inventory_docs" : [
+                {
+                        "_id" : 4,
+                        "sku" : "jkl",
+                        "description" : "product 4",
+                        "instock" : 70
+                }
+        ]
+}
+{ "_id" : 3, "inventory_docs" : [ { "_id" : 6 } ] }
+
+
+db.cityinfo.aggregate( [
+{ $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+{ $sort: { pop: 1 } },
+{ $group:
+{
+_id : "$_id.state",
+biggestCity: { $last: "$_id.city" },
+biggestPop: { $last: "$pop" }, 
+smallestCity: { $first: "$_id.city" },
+smallestPop: { $first: "$pop" }
+}
+}
+])
+
+db.cityinfo.aggregate( [ { $project : { state : 1, city : 1 } } ] )
+db.cityinfo.aggregate( [ { $project : { _id : 0, state : 1, city : 1 } } ] )
+
+> // lab2c - only display the state and the name of smallest city in each output document
+> db.cityinfo.aggregate( [
+... { $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+... { $sort: { pop: 1 } },
+... { $group:
+... {
+... _id : "$_id.state",
+... smallestCity: { $first: "$_id.city" }
+... }
+... },
+... { $project : { _id:0, state : "$_id", smallestCity : "$smallestCity" } },
+... ])
+{ "state" : "DE", "smallestCity" : "BETHEL" }
+{ "state" : "MS", "smallestCity" : "CHUNKY" }
+{ "state" : "RI", "smallestCity" : "CLAYVILLE" }
+{ "state" : "MO", "smallestCity" : "BENDAVIS" }
+{ "state" : "FL", "smallestCity" : "CECIL FIELD NAS" }
+{ "state" : "AR", "smallestCity" : "TOMATO" }
+{ "state" : "GA", "smallestCity" : "FORT STEWART" }
+{ "state" : "VT", "smallestCity" : "UNIV OF VERMONT" }
+{ "state" : "NM", "smallestCity" : "MONUMENT" }
+{ "state" : "PA", "smallestCity" : "HAMILTON" }
+{ "state" : "KS", "smallestCity" : "ARNOLD" }
+{ "state" : "MN", "smallestCity" : "JOHNSON" }
+{ "state" : "CA", "smallestCity" : "OREGON HOUSE" }
+{ "state" : "MT", "smallestCity" : "HOMESTEAD" }
+{ "state" : "AL", "smallestCity" : "ALLEN" }
+{ "state" : "OR", "smallestCity" : "KENT" }
+{ "state" : "MD", "smallestCity" : "ANNAPOLIS JUNCTI" }
+{ "state" : "CO", "smallestCity" : "CHEYENNE MTN AFB" }
+{ "state" : "ME", "smallestCity" : "BUSTINS ISLAND" }
+{ "state" : "MA", "smallestCity" : "BUCKLAND" }
+Type "it" for more
+
+> // lab2d - write the MongoDB javascript shell code needed to get the 3 largest city in each state
+> db.cityinfo.aggregate( [
+... { $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+...     { $sort: { pop: -1 } },
+...     { $group:
+... {
+... _id : "$_id.state",
+... largestCities: { $push: "$_id.city" },
+...
+... }
+...     },
+... { $project :
+... {
+... _id:0,
+... state : "$_id",
+... thirdLargestCity : { $arrayElemAt: [ "$largestCities", 2] }
+... }
+... }
+... ])
+{ "state" : "VT", "thirdLargestCity" : "BRATTLEBORO" }
+{ "state" : "ME", "thirdLargestCity" : "LEWISTON" }
+{ "state" : "MO", "thirdLargestCity" : "SPRINGFIELD" }
+{ "state" : "KS", "thirdLargestCity" : "KANSAS CITY" }
+{ "state" : "CO", "thirdLargestCity" : "AURORA" }
+{ "state" : "NE", "thirdLargestCity" : "MILLARD" }
+{ "state" : "LA", "thirdLargestCity" : "SHREVEPORT" }
+{ "state" : "NV", "thirdLargestCity" : "HENDERSON" }
+{ "state" : "GA", "thirdLargestCity" : "COLUMBUS" }
+{ "state" : "MD", "thirdLargestCity" : "SILVER SPRING" }
+{ "state" : "CA", "thirdLargestCity" : "SAN JOSE" }
+{ "state" : "MT", "thirdLargestCity" : "MISSOULA" }
+{ "state" : "NM", "thirdLargestCity" : "ROSWELL" }
+{ "state" : "ND", "thirdLargestCity" : "FARGO" }
+{ "state" : "NY", "thirdLargestCity" : "BRONX" }
+{ "state" : "WI", "thirdLargestCity" : "RACINE" }
+{ "state" : "DC" }
+{ "state" : "AZ", "thirdLargestCity" : "MESA" }
+{ "state" : "NC", "thirdLargestCity" : "GREENSBORO" }
+{ "state" : "TX", "thirdLargestCity" : "SAN ANTONIO" }
+Type "it" for more
+

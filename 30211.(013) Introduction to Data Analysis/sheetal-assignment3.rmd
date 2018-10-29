@@ -1,0 +1,79 @@
+---
+title: "Assignment3 - Introuction to Data Analysis"
+author: "Sheetal Gangakhedkar"
+date: "May 8, 2017"
+output:
+  word_document:
+    toc: yes
+    toc_depth: 4
+  pdf_document: default
+  html_document:
+    toc: yes
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Import the data into R.
+
+###1a) How many observations are there in the dataset?
+```{r}
+# load the forest fires data from the csv file at
+# https://archive.ics.uci.edu/ml/machine-learning-databases/forest-fires/forestfires.csv
+# getwd()
+# setwd("C:/Users/esheega/Documents/UCSC/DataAnalyticsR/assignment3")
+ffires = read.csv("forestfires.csv")
+dim(ffires)[1]
+```
+
+###1b) How many observations are there with a fire (i.e., area>0)
+```{r}
+areaFires = ffires[which(ffires$area > 0.0),]
+dim(areaFires)[1]
+```
+
+###1c) How many observations are there with a rain (i.e., rain>0)
+```{r}
+rainFires = ffires[which(ffires$rain > 0.0),]
+dim(rainFires)[1]
+```
+
+###1d) How many observations are there with both a fire and a rain?
+```{r}
+rainAreaFires = ffires[which(ffires$rain > 0.0 & ffires$area > 0.0),]
+dim(rainAreaFires)[1]
+```
+
+##2) Show the columns month, day, area of the all the observations.
+```{r}
+ffires[,c("month","day","area")]
+```
+
+##3) Show the columns month, day, area of the observations with a fire.
+```{r}
+ffires[which(ffires$area > 0.0),c("month","day","area")]
+```
+
+##4) How large are the five largest fires (i.e., having largest area).
+```{r}
+head(ffires[with(ffires, order(-area)),], 5)$area
+```
+###4a) What are the corresponding month, temp, RH, wind, rain area?
+```{r}
+head(ffires[with(ffires, order(-area)),], 5)[,c("month","temp","RH", "wind", "rain", "area")]
+```
+###4b) Reorder factor levels of month to be from Jan to Dec.
+```{r}
+levels(ffires$month)
+ffires$month = factor(ffires$month, levels=c("jan","feb","mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"))
+```
+```{r}
+levels(ffires$month)
+```
+###4b) Add one column to the data indicating whether a fire occured for each observation (true for area > 0 and false for area == 0)
+```{r}
+ffires$fire = if (ffires$area > 0.0) TRUE else FALSE
+head(ffires)
+```

@@ -1,0 +1,26 @@
+cd /home/cloudera/workspace/hadoop-student-homework2/src/main/java
+hadoop fs -rm -r movie-actors-out actors-nmovies-out actors-movie-avgwt-out
+
+javac -classpath ./:`hadoop classpath` ucsc/hadoop/util/*.java
+javac -classpath ./:`hadoop classpath` ucsc/hadoop/homework2/*.java
+javac -classpath ./:`hadoop classpath` ucsc/hadoop/*.java
+jar cvf hw2.jar ucsc/hadoop/util/*.class ucsc/hadoop/homework2/*.class ucsc/hadoop/*.class
+
+# HomeworkDriver Usage
+#   homework2bonuspart: Homework 2 BonusPart - the average weight of the movies the actor acted in
+#   homework2part2: Homework 2 part 2 - for each actor, show how many movies he/she has played in
+#   homeworkpart1: Homework 2 part 1 - for each movie, show who are the actors
+#   moviecount: A map/reduce program that counts # of movies for each year
+hadoop jar hw2.jar ucsc.hadoop.HomeworkDriver homework2part1 hw2data/movie/imdb.tsv movie-actors-out
+hadoop jar hw2.jar ucsc.hadoop.HomeworkDriver homework2part2 hw2data/movie/imdb.tsv actors-nmovies-out
+hadoop jar hw2.jar ucsc.hadoop.HomeworkDriver homework2bonuspart hw2data/movie/imdb.tsv actors-movie-avgwt-out imdb-weights.tsv
+
+hadoop fs -cat /user/cloudera/actors-movie-avgwt-out/part-r-00000
+hadoop fs -cat /user/cloudera/actors-nmovies-out/part-r-00000
+hadoop fs -cat /user/cloudera/movie-actors-out/part-r-00000
+
+hadoop fs -get actors-movie-avgwt-out .
+hadoop fs -get actors-nmovies-out .
+hadoop fs -get movie-actors-out .
+
+

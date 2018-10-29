@@ -1,0 +1,595 @@
+---
+title: "US College Data Analysis"
+author: "Sheetal Gangakhedkar"
+date: "June 8, 2017"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 5
+  pdf_document: default
+  word_document:
+    toc: yes
+    toc_depth: 5
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+Analyze the US College Scorecard data to find the US Universities an applicant should consider for undergraduate study, taking into consideration the tuition costs, acceptance rate, available undergraduate degrees, enrollment size, graduation rate, full-time staff, and possibility of getting PELL grant. Also see if there is any relationship between admissions rate to any of the school features. Also, this data analysis on the raw data should reveal new universities that the applicant has not considered before because they never saw the how accepting or how competitive these colleges are.
+
+## Motivation
+My daughter is in 11th grade, this is her big decisions year. She is in the process of deciding the US colleges to apply based on her interests, grades and SAT score. My goal is to shortlist colleges that fit her profile and also bring her awareness of various US Undergraduate School options to the forefront, by showing a relationship between admissions rate and various other features of the school.
+
+
+## Data Collection
+
+*US Colleges Scorecard Data* Here, you can get the data behind the College Scorecard, as well as other data on federal financial aid and earnings information. These data provide insights into the performance of schools eligible to receive federal financial aid, and offer a look at the outcomes of students at those schools. https://collegescorecard.ed.gov/data/
+ 
+Documentation of the data and APIs is located here https://collegescorecard.ed.gov/data/documentation/
+
+We need to read *MERGED2014_15_PP.csv* US Colleges Scorecard file in table format and create a data frame from it, with cases corresponding to lines and variables to fields in the file. The below options to read.csv2() were determined after experimenting with various settings to ensure the file is read into a data frame with appropriate column value types. This still has some issues of reading floating point value column values as strings, these will be converted to numeric or double later in data cleaning step. The default options were converting most of the column values as factors.  
+
+```{r}
+# Load US Colleges Data Set
+setwd("C:/Users/esheega/Documents/UCSC/DataAnalyticsR/myproject")
+college = read.csv2("CollegeScorecard_Raw_Data/MERGED2014_15_PP.csv",
+         header = TRUE,               # names of the variables extracted from its first line/header
+         sep = ",",                   # the field separator character
+         colClasses = NA,             # vector of classes to be assumed for the columns
+         skip = 0,                    # lines of the data file to skip
+         dec = ".",                   # character used for decimal points
+         strip.white = TRUE,          # strip leading and trailing white space from unquoted character fields
+         na.strings = "NULL",         # vector of strings which are to be interpreted as NA values
+         skipNul = TRUE,              # should nuls be skipped?
+         numerals = c("allow.loss"),  # accuracy loss tolerance while conversion to double precision 
+         stringsAsFactors = FALSE     # should character vectors be converted to factors?
+         )
+
+# size the US college data set
+dim(college)
+```
+
+## Data Cleaning
+
+The imported US College Scorecard dataset has *7703 observations and 1743 features*, where most of the columns are empty or NULL strings, and there are many features that are not relevant for the objectives of this data analysis project. Also since we are analyzing US Colleges that offer 4-year Bachelor's degrees, we want to drop observations or Colleges that offer only 2 year degrees or associate degress.
+
+Data cleaning involved the following actions in R:
+
+* Remove duplicate college observations
+* Replace "PrivacyReplaced"", "NULL"" strings with NA.
+* Choose colleges that are currently operating.
+* Remove columns not relevant for 4yr undergraduate degree programs (2yr, cert, associate only colleges).
+* Remove columns relating to income levels, debt repayments,...
+* Remove colleges that don't offer 4yr undergraduate degree programs.
+* Remove colleges with no accreditation.
+* Choose colleges that offer only 4yr undergraduate degree programs, highest degree, Carnegie classification.
+* Remove schools with religious affiliation, and distance only education.
+* Remove columns relating to percent of degrees awarded , and many misc columns.
+* Eliminate columns individually from consideration, not required for this analysis.
+* Convert some feature values to the right type (chr to double or numeric).
+
+Resulting dataset size after cleaning has *1281 observations and 192 features*.
+
+```{r}
+# fix first column name '?..UNITID' to UNITID
+names(college)[1] = "UNITID"
+
+# remove duplicate college observations by college OPEID6
+college = college[!duplicated(college[,"OPEID6"]),]
+
+# replace PrivacySuppressed values with N/A
+college[sapply(college, function(x) (x == "PrivacySuppressed"))] = NA
+# replace NULL values with N/A
+college[sapply(college, function(x) (x == "NULL"))] = NA
+
+# Remove observatons (or Schools) that are not relevant for this discovery process and analysis
+# that are 'Not currently certified as an operating instituition
+college = college[(college[,"CURROPER"]==1),]
+# eliminate colleges that don't offer 4yr bachelor's degree programs
+college = college[(college[,"ICLEVEL"]==1),]
+# select on colleges that focus on Bachelors degree or higher
+college = college[(college[,"CCBASIC"]>=14),]
+# choose colleges that offer only 4yr Bachelor's or Graduate degrees
+college = college[(college[,"HIGHDEG"]>=3),]
+# choose colleges based on Carnegie Classification -- undergraduate profile
+college = college[(college[,"CCUGPROF"]>=5),]
+# remove religious affiliation colleges
+college = college[(college[,"RELAFFIL"]<22),]
+# remove distance-only education schools
+college = college[(college[,"DISTANCEONLY"]==0),]
+# eliminate colleges that have no ACCREDAGENCY
+college = college[(!is.na(college[,"ACCREDAGENCY"])),]
+
+
+# Remove features with no data or relevancy for this analysis 
+# dealing with completion and repayment rates for various demographic profiles, measuring deaths etc..
+# colnames(college[,grepl( "_RT" , colnames( college ))]) 
+college = college[,!grepl( "_RT" , colnames( college ))]
+# colnames(college[,grepl("_SUPP", names(college))])
+college = college[,!grepl("_SUPP", names(college))]
+# average net price (18 cols) for the programs by income levels is not relevant for this study
+# colnames(college[,grepl("NPT\\d", colnames(college))])
+college = college[,!grepl("NPT\\d", colnames(college))]
+# remove the debt repayment information as we are not interested in analyzing that info
+# colnames(college[,grepl("RPY_", colnames(college))])
+college = college[,!grepl( "RPY_" , colnames( college ))]
+# not interested in 2yr or associate or certificate degree info, 
+# just interested in CIP\\d+\BACHL - bachelors degree programs
+# colnames(college[,grepl("CIP\\d+ASSOC|CIP\\d+CERT\\d", colnames(college))])
+college = college[,!grepl("CIP\\d+ASSOC|CIP\\d+CERT\\d", colnames(college))]
+# eliminate stats about Number of Title IV students
+college = college[,!grepl("NUM\\d+", names(college))]
+# Percentage of degrees awarded in an area xxx - not relevant feature for comparions across colleges
+# colnames(college[,grepl("PCIP\\d+", names(college))])
+college = college[,!grepl("PCIP\\d", colnames(college))]
+# eliminate misc columns, again not relevant for our analysis
+# RET_*, C150_, D150_, _DEBT_N, CUML_DEBT_, NUM\\d+_, 
+# colnames(college[,grepl("RET_|C150_|D150|_DEBT_N|CUML_DEBT_|NUM\\d+_", names(college))])
+college = college[,!grepl("RET_|C150_|D150|_DEBT_N|CUML_DEBT_|NUM\\d+_", names(college))]
+
+# eliminate columns individually from consideration, that are not relevant for this analysis
+college$HCM2 = NULL
+college$MAIN = NULL
+college$NUMBRANCH = NULL
+college$REGION = NULL
+college$ALIAS = NULL
+
+# removing all 'NULL' only filled columns 
+college = college[!sapply(college, function(x) all(is.na(x)))]
+
+# convert some feature values to the right type (string to double)
+college$TUITIONFEE_OUT = as.numeric(college$TUITIONFEE_OUT)
+college$LATITUDE = as.double(college$LATITUDE)
+college$LONGITUDE = as.double(college$LONGITUDE)
+college$ADM_RATE = as.double(college$ADM_RATE)
+college$ADM_RATE_ALL = as.double(college$ADM_RATE_ALL)
+college$UGDS = as.numeric(college$UGDS)
+college$UGDS_WHITE = as.double(college$UGDS_WHITE)
+college$UGDS_ASIAN = as.double(college$UGDS_ASIAN)
+college$UGDS_MEN = as.double(college$UGDS_MEN)
+college$UGDS_WOMEN = as.double(college$UGDS_WOMEN)
+college$PCTPELL = as.double(college$PCTPELL)
+college$APPL_SCH_N = as.numeric(college$APPL_SCH_N)
+
+# reevaluate the dimention of the college dataset
+dim(college)
+```
+
+
+## Data Discovery and Selection
+In this section we will analyze the dataset for various scenarios of selection and discovery of colleges with certain characteristics and profiles. Also, we will represent some of the selections and data as charts or plots to help visualize the large volume of data in one simple graphic. Here we use various packages like ggplot2, dplyr, ModelMetrics, etc.. 
+
+### List 20 most competitive undergraduate 4yr degree colleges in the dataset
+Competitive colleges can be described as the colleges that have a low admissions rate, and their average SAT score is high and the admissions rate is low even though the school's undergraduate population is large, 10000 students or more. Below we discover such colleges and list them in the order of increasing acceptance rate, large student popluation, and high average SAT score. This resulting most competitive 20 colleges list is plotted as a bar chart.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# top 20 most competitive US colleges, with high student population and low admission rates
+# choose ones with high SAT_AVG score as well
+lowAdmRate =college[(is.na(college$ADM_RATE_ALL)==FALSE &
+                             is.na(college$UGDS)==FALSE &
+                             is.na(college$SAT_AVG)==FALSE &
+                             college$ADM_RATE_ALL>0 & college$ADM_RATE_ALL<1 &
+                             college$UGDS>10000 &
+                             college$SAT_AVG > 1200),]
+lowAdmRate = lowAdmRate[order(lowAdmRate$ADM_RATE_ALL, -lowAdmRate$UGDS, -lowAdmRate$SAT_AVG),]
+ # to retain the order in plot
+lowAdmRate$INSTNM = factor(lowAdmRate$INSTNM, levels=lowAdmRate$INSTNM) 
+# select the 20 most competitive colleges
+lowAdmRate = head(lowAdmRate, 20)[,c("INSTNM", "ADM_RATE_ALL")]
+lowAdmRate
+
+# plot the 20 most competitive colleges as a bar graph
+theme_set(theme_bw())
+plotAdmRate = ggplot(lowAdmRate, aes(y = ADM_RATE_ALL, x = INSTNM))
+plotAdmRate = plotAdmRate + geom_bar(stat="identity", fill="tomato3")
+plotAdmRate = plotAdmRate + coord_flip()
+plotAdmRate = plotAdmRate + labs(y="Admissions Rate", 
+                                 x="University Name", 
+                                 title="Top 20 Most Competitive Colleges") 
+plotAdmRate
+```
+
+### List 20 most accepting undergraduate 4yr degree colleges in the dataset
+Most accepting colleges can be described as the colleges that have a high admissions rate, and their average SAT score is high and the school's undergraduate population is large, 10000 students or more. Below we discover such colleges and list them in the order of decreasing acceptance rate, large student popluation, and high average SAT score. This resulting most accepting 20 colleges list is plotted as a bar chart.
+
+```{r}
+# top 20 most accepting US colleges, with high student population and high admission rates
+highAdmRate =college[(is.na(college$ADM_RATE_ALL)==FALSE &
+                             is.na(college$UGDS)==FALSE &
+                             is.na(college$SAT_AVG)==FALSE &
+                             college$ADM_RATE_ALL>0 & college$ADM_RATE_ALL<1 &
+                             college$UGDS>10000 &
+                             college$SAT_AVG > 1200),]
+highAdmRate = highAdmRate[order(-highAdmRate$ADM_RATE_ALL, -highAdmRate$UGDS, -highAdmRate$SAT_AVG),]
+ # to retain the order in plot
+highAdmRate$INSTNM = factor(highAdmRate$INSTNM, levels=highAdmRate$INSTNM) 
+highAdmRate = head(highAdmRate, 20)[,c("INSTNM", "ADM_RATE_ALL")]
+highAdmRate
+
+theme_set(theme_bw())
+plotAdmRate = ggplot(highAdmRate, aes(y = ADM_RATE_ALL, x = INSTNM))
+plotAdmRate = plotAdmRate + geom_bar(stat="identity", fill="slateblue4")
+plotAdmRate = plotAdmRate + coord_flip()
+plotAdmRate = plotAdmRate + labs(y="Admissions Rate", 
+                                 x="University Name", 
+                                 title="Top 20 Large and Most Admitting Colleges") 
+plotAdmRate
+```
+
+### List 20 most accepting undergraduate 4yr degree colleges in the dataset
+For the given student profile, with some key preferences like admissions rate range, SAT range, number of students enrolled, and out-of-state tuition range and offering a 4yr Bachelor's degree in a specific area find the 20 best colleges matching this profile, that the student or parent can consider applying. 
+
+In the below discovery or selection process, we are choosing admissions rate between 0.10 and 0.55, minimum SAT score of 1200 and average score of 1430, number of enrolled students in undergraduate school as 10,000, and out-of-state tuition between 20k and 45k dollars, with degrees awarded in Biological And Biomedical Sciences. We choose the top 20 in our selection process by ordering by admissions rate, size of enrollment and average SAT score.
+
+Later we use these top 20 selections matching at the top end of the student profile, to plot the for each school's the male vs female enrollment distribution us a stacked bar chart, and to plot for each school, the number of FAFSA applications, number of students who got the PELL grant against the total number of students enrolled at the school as a stacked bar graph.
+
+Below data analysis covers the following use-cases:
+
+* Select top 20 schools that meet or exceed the student profile and preference requirements.
+* Stacked bar graph of enrollment by gender at the top 20 selected schools.
+* Stacked bar graph of number of FAFSA applications, PELL grants and enrolled students at the top 20 selected schools.
+
+
+```{r}
+# select 20 best colleges that fit a student profile, but choosing large colleges, with 
+# large enrollment for undergraduate study, required degree offered, 
+# admission rate in a competitive range, student's SAT score is above the mean SAT score
+# for that school.
+
+# student profile
+prefAdmRateMin=0.10
+prefAdmRateMax=0.55
+prefSATMin=1200
+prefSATAvg=1430
+prefNumStudents=10000
+prefOuttuitionMin=20000
+prefOuttuitionMax=45000
+prefAreaOfStudy=college$CIP26BACHL
+
+# select the colleges that meet or exceed the profile requirements
+schoolSATArea = college[(is.na(college$ADM_RATE_ALL)==FALSE &
+                             is.na(college$SAT_AVG)==FALSE &
+                             is.na(college$SAT_AVG_ALL)==FALSE &
+                             is.na(prefAreaOfStudy)==FALSE &
+                             is.na(college$UGDS)==FALSE &
+                             college$ADM_RATE_ALL>prefAdmRateMin & 
+                             college$ADM_RATE_ALL<prefAdmRateMax &
+                             college$SAT_AVG<=prefSATAvg & 
+                             college$SAT_AVG>prefSATMin &
+                             college$TUITIONFEE_OUT >= prefOuttuitionMin &
+                             college$TUITIONFEE_OUT <= prefOuttuitionMax &
+                             prefAreaOfStudy==1 &
+                             college$UGDS>prefNumStudents),]
+
+# sort the selected colleges by admission rate in descending order, also do secondary sorting 
+# by enrollment size and SAT average score requirement.
+schoolSATArea = schoolSATArea[order(-schoolSATArea$ADM_RATE_ALL, -schoolSATArea$UGDS, schoolSATArea$SAT_AVG),]
+
+schoolSATArea$INSTNM = factor(schoolSATArea$INSTNM, levels=schoolSATArea$INSTNM)
+
+# list the 20 universities found via this preferences filter
+head(schoolSATArea[,c("INSTNM")], 20)
+```
+
+#### Stacked bar graph of enrollment by gender at the top 20 selected schools
+
+For the 20 selected schools above for the student profile, via a stacked bar chart we are visually analyzing the distribution of male and female student population at that school for the enrolled cohort.
+
+```{r}
+# Stacked bar graph - Top 20 Selected Colleges Enrollment by Gender
+males = data.frame (
+  School = schoolSATArea$INSTNM,
+  Gender = "Male",
+  NumStudents = as.integer(schoolSATArea$UGDS * schoolSATArea$UGDS_MEN)
+)
+females = data.frame (
+  School = schoolSATArea$INSTNM,
+  Gender = "Female",
+  NumStudents = as.integer(schoolSATArea$UGDS * schoolSATArea$UGDS_WOMEN)
+)
+
+jmfs <- rbind(males,females)
+# str(jmfs)
+
+ggplot(jmfs, aes(School, NumStudents, fill = Gender)) +
+        geom_bar(stat = "identity") + coord_flip() + labs(y="Number of Students Enrolled", 
+                                 x="University Name", 
+                                 title="Top 20 Selected Colleges Enrollment by Gender") 
+
+```
+
+#### Stacked bar graph of FAFSA applications, and PELL grants at the top 20 selected schools
+
+For the 20 selected schools above for the student profile, via a stacked bar chart we are visually analyzing the distribution of number of FAFSA applications and PELL grants at that school for the enrolled population.
+
+```{r}
+# Stacked bar graph - Top 20 Selected Colleges - number of FAFSA applications, PELL grants.
+pellgrants = data.frame (
+  School = schoolSATArea$INSTNM,
+  Grant = "PELL-Granted",
+  NumStudents = as.integer(schoolSATArea$APPL_SCH_N * schoolSATArea$PCTPELL)
+)
+pellapps = data.frame (
+  School = schoolSATArea$INSTNM,
+  Grant = "PELL-Rejected",
+  NumStudents = schoolSATArea$APPL_SCH_N - as.integer(schoolSATArea$APPL_SCH_N * schoolSATArea$PCTPELL)
+)
+noapplypell = data.frame (
+  School = schoolSATArea$INSTNM,
+  Grant = "Others",
+  NumStudents = schoolSATArea$UGDS - schoolSATArea$APPL_SCH_N
+)
+
+pells <- rbind(pellgrants, pellapps, noapplypell)
+# str(pells)
+
+ggplot(pells, aes(School, NumStudents, fill = Grant)) +
+        geom_bar(stat = "identity") + coord_flip() + labs(y="Number of Students Enrolled", 
+                                 x="University Name", 
+                                 title="Top 20 Selected Colleges by PELL Grants")
+```
+
+### Histogram of undergraduate program enrollments across US colleges
+
+We use the UGDS feature, which represents the enrollment of undergraduate certificate/degree-seeking students at each school. This shows the distribution of most common enrollment sizes.
+
+```{r}
+# histogram of undergraduate student population across US Bachelor's degree colleges
+hist(college$UGDS, xlab="Undergraduate Student Population", ylab="Number of Schools",
+     main="Undergraduate Student population across US colleges", col=c("yellowgreen"))
+```
+
+## Data Visualization
+
+### Plot on US Map the Number of Undergraduate Students Enrolled by State
+
+This geochart is to view the enrollment concentrations by state (ST_FIPS code). This visualization allows us to see popular and top large schools by state. Based on the map California, Florida and Texas have the largest student populations between 400,000 and 600,000.
+
+```{r}
+# count the number of students by state zip code
+library("lubridate")
+library("dplyr")
+
+df = college
+df = df %>%
+     group_by(ST_FIPS) %>%
+     summarise(
+       NumStudents = sum(UGDS, na.rm=TRUE)
+     ) %>%
+     mutate(
+       fips = ST_FIPS
+     )
+
+library("maps")
+library("ggplot2")
+
+us.states = map_data("state")
+
+df.merge = left_join(df, maps::state.fips)
+
+df.merge = df.merge %>% mutate(region = polyname)
+df.merge = left_join(df.merge, us.states)
+
+p = ggplot(df.merge, aes(x = long, y = lat, group = group, fill=NumStudents)) + 
+  geom_polygon() +
+  expand_limits() +
+  coord_map() +
+  labs(title="Number of Undergraduate Students Enrolled by US States")+
+  theme_bw()
+p
+```
+
+### Plot on Continental US map out-of-state tuition costs at US Colleges
+
+This geochart is to view the out-of-state tuition ranges (TUITIONFEE_OUT) on continental US map. The high tuition fee colleges are mostly located on the East and West coasts of continental US. Here we created 10k tuition fee range buckets, for tuition from $0 to $40k+.
+
+```{r}
+# plot on US map, out-of-state tuition costs for the continental US
+require(dplyr)
+
+# filter schools by  costs and map the schools on us map
+schools = college[(is.na(college$TUITIONFEE_OUT)==FALSE &
+                   is.na(college$LATITUDE)==FALSE &
+                   is.na(college$LONGITUDE)==FALSE &
+                   college$LATITUDE>25 & college$LATITUDE<50 &
+                   college$LONGITUDE>(-130) & college$LONGITUDE<(-60)), ]
+
+## add a tuition factor for tuition range
+cuts<-c(0, 10000, 20000, 30000, 40000, 50000)
+labs<-c("$0-10K","$10K-20K", "$20K-30K", "$30K-40K", "$40K+")
+schools$tuition<-cut(schools$TUITIONFEE_OUT, 
+                     cuts, right=FALSE, labels=labs)
+
+## define colors to use for each tuition range
+tuitionColors = c("#D4B9DA", "#C994C7", "#DF65B0", "#DD1C77", "#980043")
+# tuitionColors <- c("yellow2", "green3", "deepskyblue3", "orange3", "red4")
+names(tuitionColors) <- levels(schools$tuition)
+
+tuitionMap <- NULL
+tuitionMap <- ggplot(schools) 
+tuitionMap <- tuitionMap + borders("state", colour="white", fill="#F1EEF6")
+tuitionMap <- tuitionMap + geom_point(mapping=aes(x=LONGITUDE, y=LATITUDE, 
+                                  colour=tuition),  size=2)
+tuitionMap <- tuitionMap + ggtitle("Out-of-state tuition Ranges on Continental US Map") 
+tuitionMap <- tuitionMap + scale_colour_manual(name = "Out-of-State Tuition",values = tuitionColors)
+tuitionMap <- tuitionMap + theme(legend.position="top", legend.box="horizontal", 
+                 legend.text=element_text(size=10), 
+                 legend.title=element_text(size=10))
+
+# plot tuition costs across US map
+tuitionMap
+```
+
+### Plot on continental US map average SAT score at US Colleges
+
+This geochart is to view the average SAT score at US undergraduate colleges (SAT_AVG_ALL) on continental US map. To plot we created buckets of 100 points, starting with the first bucket for SAT score of 0 to 1000 points, then have incremental buckets of 100 points each, until the max 1600 SAT score.
+
+```{r}
+# plot on US map, out-of-state tuition costs for the continental US
+require(dplyr)
+
+# filter schools by tuition costs and map the schools on us map
+satschools = college[(is.na(college$SAT_AVG_ALL)==FALSE &
+                   is.na(college$LATITUDE)==FALSE &
+                   is.na(college$LONGITUDE)==FALSE &
+                   college$LATITUDE>25 & college$LATITUDE<50 &
+                   college$LONGITUDE>(-130) & college$LONGITUDE<(-60)), ]
+
+# add a tuition factor for tuition range
+cuts = c(0, 1000, 1100, 1200, 1300, 1400, 1500, 1600)
+labs = c("$0-1000","1000-1100","1100-1200","1200-1300","1300-1400","1400-1500","1500+")
+satschools$satgrp = cut(satschools$SAT_AVG_ALL, 
+                     cuts, right=FALSE, labels=labs)
+
+# define colors to use for each tuition range
+satColors = c("gray", "yellow", "green", "cyan", "blue", "magenta", "red")
+names(satColors) = levels(satschools$tuition)
+
+satMap = NULL
+satMap = ggplot(satschools) 
+satMap = satMap + borders("state", colour="white", fill="gray20")
+satMap = satMap + geom_point(mapping=aes(x=LONGITUDE, y=LATITUDE, 
+                                  colour=satgrp),  size=2)
+satMap = satMap + ggtitle("SAT Average Ranges on Continental US Map") 
+satMap = satMap + scale_colour_manual(name = "Average SAT Score",values = satColors)
+satMap = satMap + theme(legend.position="top", legend.box="horizontal", 
+                 legend.text=element_text(size=10), 
+                 legend.title=element_text(size=10))
+
+# plot tuition costs across US map
+satMap
+```
+
+## Data Analysis
+
+### Linear Regression to discover a relation ship between admission rates and school stats
+Models quantify the relationships between our variables. Models let us make predictions. A simple linear regression is the most basic model. The models are built by a function, lm(), which returns a linear model object. We check the model if it is reasonable, and statistically significant.
+
+Here we want to see if there is any relationship between the school's admissions rate and the following features:
+
+* UGDS - Enrollment of undergraduate certificate/degree-seeking students
+* SAT_AVG, SAT_AVG_ALL - Average SAT equivalent score of students admitted
+* UGDS_WHITE - Total share of enrollment of undergraduate degree-seeking students who are white
+* UGDS_ASIAN - Total share of enrollment of undergraduate degree-seeking students who are Asian
+* TUITIONFEE_OUT - Out-of-state tuition and fees
+* PCTPELL - Percentage of undergraduates who receive a Pell Grant
+* APPL_SCH_N - Number of students in the FAFSA applications cohort
+* ADM_RATE, ADM_RATE_ALL - Admission rate for all campuses rolled up
+
+#### Selecting the Best Regression Variables
+
+To select the best subset of regression variables, the step function can perform forward or backward stepwise regression and come up with the optimal set of predictors and model. Here we will be just doing the Backward Stepwise Regression, which starts with many variables and removes the underperformers.
+
+
+```{r}
+# start with a model that includes all the predictors, called the full model
+# check for any relation between the admissions rate, student population, race of students, tuition, and SAT score
+admrate.full.model = lm(ADM_RATE_ALL~UGDS+SAT_AVG+UGDS_WHITE+UGDS_ASIAN+TUITIONFEE_OUT+PCTPELL+APPL_SCH_N, data=college)
+
+# eliminate the insignificant variables using step function to create reduced model
+admrate.reduced.model = step(admrate.full.model, direction="backward")
+
+# summary results of various model fitting functions
+summary(admrate.reduced.model)
+```
+
+#### Linear Regression Results Analysis
+The Backward stepwise regression using step removed 'UGDS', 'UGDS_ASIAN', and tuitionFEE_OUT predictors as insignificant or underperformers. It narrowed down the Admissions Rate(ADM_RATE_ALL) predictors to PCTPELL, APPL_SCH_N, UGDS_WHITE, and SAT_AVG.
+
+
+##### Residuals statistics
+                          
+`Min: -0.51478, 1Q: -0.10486, Median: -0.00201,  3Q: 0.10509,  Max: 0.54846` 
+
+The sign of the median '-0.00201' indicates the skew's direction, and the magnitude of the median indicates the extent. In this case the median is negative, which suggests some skew to the left, but the skew is minor. The residuals have a nice, bell-shaped distribution, around the median, (1Q: -0.10486 Median: -0.00201 Q3: 0.10509), as the Q1 and Q3 quartiles have the same magnitude around the median.
+
+##### Are the coefficients significant? (significant features)
+
+The column labeled *Estimate* contains the estimated regression coefficients as calculated by ordinary least squares.Theoretically, if a variable's coefficient is zero then the variable is worthless; it adds nothing to the model. We therefore ask: Statistically speaking, how likely is it that the true coefficient is zero? That is the purpose of the t statistics and the p-values, which in the summary are labeled (respectively) t value and Pr(>|t|).
+
+p-value is the probability that gauges the likelihood that a coefficient is not significant, so smaller is better. In the reduced model, the p-value does not exceed 0.000817 (seen for 'PCTPELL'), and it is quite lower than the conventional signifance limit of 0.05.
+
+The column labeled Std. Error is the standard error of the estimated coefficient. The column labeled 't' value is the t-statistic from which the p-value was calculated.
+
+##### Significant Predictors
+Based on the p-value, significant features/predictors for 'ADM_RATE_ALL' in the US College Scorecard data model are:
+
+```{r}
+attr(terms(admrate.reduced.model), "predvars")
+```
+
+##### R flags
+
+A handy feature is that R flags the significant variables for quick identification. All the reduced model predictors/features have '***', which indicates their high significance. 
+
+##### Residual standard error
+
+Residual standard error: '0.1511 on 694 degrees of freedom'. This reports the standard error of the residuals.
+
+##### Is the model useful? (R2 - coefficient of determination))
+
+Multiple R-squared:  0.4631, Adjusted R-squared:   0.46
+
+R2 is a measure of the model's quality. Bigger is better. Mathematically, it is the fraction of the variance of response 'ADM_RATE_ALL' that is explained by the regression model. The remaining variance is not explained by the model, so it must be due to other factors (i.e., unknown variables or sampling variability). In this case, the model explains 0.46 (46.0%) of the variance of 'ADM_RATE_ALL', and the remaining 0.54 (54.0%) is unexplained.
+
+It is strongly suggested using the adjusted rather than the basic R2. The adjusted value accounts for the number of variables in the model and so it is a more realistic assessment of its effectiveness. In this case, they are the same.
+
+
+##### Is the model statistically significant? (F Statistic)
+
+F-statistic: 149.7 on 4 and 694 DF,  p-value: < 2.2e-16
+
+Conventionally, a p-value of less than 0.05 indicates that the model is likely significant (one or more ??i are nonzero) whereas values exceeding 0.05 indicate that the model is likely not significant. Here, the probability is only 2.2e-16 that our model is insignificant. That's very good.
+
+
+#### Plotting Regression Residuals
+
+Normally, plotting a regression model object produces several diagnostic plots. You can select just the residuals plot by specifying which=1 for Residuals vs Fitted values and which=2 for Normal Q-Q plot.
+
+
+```{r}
+plot(admrate.reduced.model, which=1)
+plot(admrate.reduced.model, which=2)
+```
+
+
+#### Root Mean Squared Error (RMSE)
+
+The square root of the mean/average of the square of all of the error. The use of RMSE is very common and it makes an excellent general purpose error metric for numerical predictions. Compared to the similar Mean Absolute Error, RMSE amplifies and severely punishes large errors.
+
+RMSE = sqrt( mean( (sim - obs)^2, na.rm = TRUE) )
+
+Root Mean Square Error (RMSE) is the standard deviation of the residuals (prediction errors). Residuals are a measure of how far from the regression line data points are; RMSE is a measure of how spread out these residuals are. In other words, it tells you how concentrated the data is around the line of best fit. Root mean square error is commonly used in climatology, forecasting, and regression analysis to verify experimental results.
+
+When standardized observations and forecasts are used as RMSE inputs, there is a direct relationship with the correlation coefficient. For example, if the correlation coefficient is 1, the RMSE will be 0, because all of the points lie on the regression line (and therefore there are no errors).
+
+The model was created using all the observation in the US College data set, but for testing we limit to using the 20 top selected US colleges that matched the student's profile and preferences.
+
+```{r}
+
+library(ModelMetrics)
+
+# score the model, by using the top 20 selected colleges data above as testing data
+predicted = predict(admrate.reduced.model, schoolSATArea)
+
+#get the actual values 
+actual = schoolSATArea$ADM_RATE_ALL
+
+# calculated RMSE
+rmse(actual, predicted)
+summary(admrate.full.model)$sigma
+```
+
+The RMSE calculated is 0.0981518, which is quite low, it appears the regression model ADM_RATE_ALL ~ SAT_AVG + UGDS_WHITE + PCTPELL + APPL_SCH_N for our US College Scorecard Dataset appears to be good fitting model.
+
+
+## References
+
+* ISLR Package from https://cran.r-project.org/web/packages/ISLR/ISLR.pdf
+* US College Scorecard Data from https://collegescorecard.ed.gov/data/
+

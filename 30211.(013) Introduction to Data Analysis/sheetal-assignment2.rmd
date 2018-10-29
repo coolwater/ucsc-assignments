@@ -1,0 +1,185 @@
+---
+title: 'Assignment #2 - Introduction to Data Analysis'
+author: "Sheetal Gangakhedkar"
+date: "May 3, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Questions
+
+**1. Create two matrices from the given set of numbers X1={2,3,7,1,6,2,3,5,1} and x2={3,2,9,0,7,8,5,8,2}**
+```{r }
+# create matrix X1 and X2 with given data
+X1 = matrix(c(2,3,7,1,6,2,3,5,1), nrow=3, ncol=3, byrow=FALSE)
+X2 = matrix(c(3,2,9,0,7,8,5,8,2), nrow=3, ncol=3, byrow=FALSE)
+```
+
+**2. Find  the  matrix  product ** 
+```{r}
+# multiply matrix X1 with X2
+prodX1X2 = X1 %*% X2
+prodX1X2
+```
+
+**3. Find  the  inverse of the matrix and prove that it is  correct.**
+```{r}
+# solve to get the inverse of matrix
+iX1 = solve(X1)
+class(iX1) == "matrix"
+iX1
+# prove that X1 multiplied with its inverse returns an identity matrix
+identityX1 = iX1 %*% X1
+identityX1
+isSymmetric(identityX1)
+# solve to get the inverse of matrix
+iX2 = solve(X2)
+class(iX2) == "matrix"
+iX2
+# prove that X1 multiplied with its inverse returns an identity matrix
+identityX2 = iX2 %*% X2
+identityX2
+isSymmetric(identityX2)
+```
+**4. Load the Animals data set from the "MASS" package**
+```{r}
+data(package="MASS", "Animals")
+head(Animals)
+```
+**5. Find the correlation coefficient of brain and body in this data set and comment on the relation between them **
+```{r}
+# convert animal body weight into same units 'grams' as the brain weight, and then get correlation coeff
+# help(package="MASS", "Animals")
+cor(Animals$body*1000, Animals$brain, method="pearson")
+```
+It appears the Animal body weight and brain weight have a very low negative relationship and almost no correlation, using the default "pearson" method.
+
+**6. Load USArrests data set. Comment on the distribution of the variables. Is there any relation between UrbanPop and three crimes. **
+```{r}
+data(USArrests)
+head(USArrests)
+dim(USArrests)
+```
+
+***Understanding the distribution of variables in the USArrests data set.***
+```{r}
+summary(USArrests)
+```
+We see that Murder rate is centered at 7.25, spread is 16.6 and interquartile range is 7.175
+
+We see that Assault rate is centered at 159.0, spread is 292.0 and interquartile range is 140.0
+
+We see that Urban Population rate is centered at 66.0, spread is 59 and interquartile range is 23.25
+
+We see that Rape rate is centered at 20.10, spread is 38.7 and interquartile range is 11.11
+
+```{r}
+boxplot(USArrests$Murder, horizontal=TRUE, col=2, main="Murder Rate in US States")
+text(x=fivenum(USArrests$Murder), labels =fivenum(USArrests$Murder), y=1.25)
+
+boxplot(USArrests$Assault, horizontal=TRUE, col=4, main="Assault Rate in US States")
+text(x=fivenum(USArrests$Assault), labels =fivenum(USArrests$Assault), y=1.25)
+
+boxplot(USArrests$UrbanPop, horizontal=TRUE, col=6, main="Urban Population in US States")
+text(x=fivenum(USArrests$UrbanPop), labels =fivenum(USArrests$UrbanPop), y=1.25)
+
+boxplot(USArrests$Rape, horizontal=TRUE, col=8, main="Rape Rate in US States")
+text(x=fivenum(USArrests$Rape), labels=fivenum(USArrests$Rape), y=1.25)
+```
+
+***Standard deviation of USArrests data for Murder, Assault, Urban Population and Rape rates data***
+```{r}
+sapply(USArrests[,1:4], sd)
+```
+
+***Distribution plot of USArrests data set***
+```{r}
+pairs(USArrests, panel = panel.smooth, main = "USArrests data", col=c("green","blue","black","red"))
+```
+
+***Correlation of data columns in USArrests data set***
+```{r}
+cor(USArrests[,1:4])
+```
+Correlation data shows that Murder and Assault rates are positively and highly correlated, followed medium level correlation between Assault and Rape rates. The least related is the Urban Polulation and Murder rates data.
+```{r}
+cor(USArrests$UrbanPop, USArrests$Murder)
+cor(USArrests$UrbanPop, USArrests$Assault)
+cor(USArrests$UrbanPop, USArrests$Rape)
+```
+Urban Population and Murder rates have no correlation with a positive but very weak or no relationship.
+Urban Population and Assault rates have a low correlation with a positive relationship.
+Urban Population and Rape rates have a medium correlation with a positive relationship.
+
+***Histogram Distribution of variables in the USArrests data set.***
+```{r}
+# histogram of Murder arrests per 100k popluation in 50 US states
+hist(USArrests[,1], col=2, main="Histogram of Murder Rate in US States", xlab=colnames(USArrests)[1])
+
+# histogram of Assault arrests per 100k popluation in 50 US states
+hist(USArrests[,2], col=4, main="Histogram of Assault Rate in US States", xlab=colnames(USArrests)[2])
+
+# histogram of Urban population per 100k popluation in 50 US states
+hist(USArrests[,3], col=6, main="Histogram of Urban Population in US States", xlab=colnames(USArrests)[3])
+
+# histogram of Rape arrests per 100k popluation in 50 US states
+hist(USArrests[,4], col=8, main="Histogram of Rape Rate in US States", xlab=colnames(USArrests)[4])
+```
+
+**7. Which states has most and least assault, murder, and rape arrests.**
+```{r}
+# states with least Murder arrests
+USArrests[which(USArrests$Murder==min(USArrests$Murder)),]
+row.names(USArrests[which(USArrests$Murder==min(USArrests$Murder)),])
+# states with least Assault arrests
+USArrests[which(USArrests$Assault==min(USArrests$Assault)),]
+row.names(USArrests[which(USArrests$Assault==min(USArrests$Assault)),])
+# states with least Rape arrests
+USArrests[which(USArrests$Rape==min(USArrests$Rape)),]
+row.names(USArrests[which(USArrests$Rape==min(USArrests$Rape)),])
+
+
+# states with most Murder arrests
+USArrests[which(USArrests$Murder==max(USArrests$Murder)),]
+row.names(USArrests[which(USArrests$Murder==max(USArrests$Murder)),])
+# states with most Assault arrests
+USArrests[which(USArrests$Assault==max(USArrests$Assault)),]
+row.names(USArrests[which(USArrests$Assault==max(USArrests$Assault)),])
+# states with most Rape arrests
+USArrests[which(USArrests$Rape==max(USArrests$Rape)),]
+row.names(USArrests[which(USArrests$Rape==max(USArrests$Rape)),])
+
+```
+**8. List the states which have assault arrests more than median of the country.**
+```{r}
+median(USArrests$Assault)
+USArrests[which(USArrests$Assault>median(USArrests$Assault)),]
+row.names(USArrests[which(USArrests$Assault>median(USArrests$Assault)),])
+```
+
+**9. Which states are in the bottom 25% of murder**
+
+Bottom 25% means in this case, states having murder rates above 75% or 3rd Quartile murder rate
+```{r}
+# 3rd Quantile for murder rates
+quartile3 = quantile(USArrests$Murder)[4]
+quartile3
+USArrests[which(USArrests$Murder>=quartile3),]
+row.names(USArrests[which(USArrests$Murder>=quartile3),])
+```
+
+**10. Which states are in the top 25% of the murder.**
+
+Top 25% means in this case, states having murder rates below 25% or 1st Quartile murder rate
+```{r}
+# 1st Quantile for murder rates
+quartile1 = quantile(USArrests$Murder)[2]
+quartile1
+USArrests[which(USArrests$Murder<=quartile1),]
+row.names(USArrests[which(USArrests$Murder<=quartile1),])
+```

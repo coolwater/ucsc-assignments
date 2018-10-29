@@ -1,0 +1,67 @@
+[ec2-user@ip-172-31-30-181 iotsim]$ spark-submit --jars spark-streaming-kafka-0-8-assembly_2.11-2.0.0-preview.jar ./kafka-direct-iotmsg2.py localhost:9092 iotmsgs
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:02
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:04
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:06
+
+JSON String in RDD =
+[{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T13:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":48.5,"windspeed":7.7}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T14:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":47.9,"windspeed":7.6}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T15:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":52.8,"windspeed":6.1}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T16:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":45.9,"windspeed":11.0}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T17:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":47.2,"windspeed":6.3}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T18:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":52.5,"windspeed":1.1}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T19:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":58.7,"windspeed":5.0}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T20:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":48.9,"windspeed":3.8}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T21:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":45.7,"windspeed":6.5}}},{"guid":"0-ZZZ12345678-01A","destination":"0-AAA12345678","location":"37.312125,-121.757265","eventTime":"2017-11-12T22:44:03.309541Z","payload":{"format":"urn:example:sensor:tempwind","data":{"temperature":53.6,"windspeed":9.1}}}]
+
+Show IoT Sensor temperatures sorted in descending order
++-----------+
+|temperature|
++-----------+
+|       58.7|
+|       53.6|
+|       52.8|
+|       52.5|
+|       48.9|
+|       48.5|
+|       47.9|
+|       47.2|
+|       45.9|
+|       45.7|
++-----------+
+
+Show IoT Sensor windspeed sorted in descending order
++---------+
+|windspeed|
++---------+
+|     11.0|
+|      9.1|
+|      7.7|
+|      7.6|
+|      6.5|
+|      6.3|
+|      6.1|
+|      5.0|
+|      3.8|
+|      1.1|
++---------+
+
+Show SUMMARY of IoT Sensor temperature data
++-------+------------------+
+|summary|       temperature|
++-------+------------------+
+|  count|                10|
+|   mean|50.169999999999995|
+| stddev| 4.129312560490214|
+|    min|              45.7|
+|    max|              58.7|
++-------+------------------+
+
+Show SUMMARY of IoT Sensor windspeed data
++-------+------------------+
+|summary|         windspeed|
++-------+------------------+
+|  count|                10|
+|   mean| 6.419999999999999|
+| stddev|2.7587436754194234|
+|    min|               1.1|
+|    max|              11.0|
++-------+------------------+
+
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:08
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:10
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:12
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:14
+TIME OF IoT MESSAGES RECEPTION: 2017-11-12 23:44:16

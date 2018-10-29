@@ -1,0 +1,24 @@
+﻿use usdata
+
+// screen shot 1 - use of cursor concept on a collection
+smallcities=db.cityinfo
+dbcursor=smallcities.find({pop: {$lt: 2000}})
+dbcursor
+dbcursor.hasNext()
+dbcursor.count()
+dbcursor.next()
+
+// screen shot 2 - find all localities in CA state with population greater than 1000 and less than 10000
+cacitycursor=db.cityinfo.find({$and:[{state:"CA"},{pop: {$gt: 1000, $lt: 10000}}]})
+cacitycursor.count()
+
+// screen shot 3 - find all localities with _id or zipcode containing '9503'
+cur = db.cityinfo.find({_id:/9503/})
+
+// assignment section 5a - Find all cities with “New” in the name
+newcities = db.cityinfo.find({city:/New/i})
+newcities.count()
+
+// assignment-1 section 5b - Find all cities with populations between 23,000 and 150,000 where the state borders the pacific ocean
+pacificstates=db.cityinfo.find({$and:[{pop: {$gt: 23000, $lt: 150000}}, {state:{$in: ["CA", "AK", "WA", "HI", "OR"]}}]})
+pacificstates.count()

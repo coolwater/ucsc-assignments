@@ -1,0 +1,53 @@
+3. Modify Step #2 with a compound Filter comparison to find a range instead of a threshold (HINT: Try using AND/OR).
+Copy and paste the session output to submit for this Lab.
+
+Modified PySpark Code: The filter now selects a range of words (strings) that are lexicographically greater than string "11" and less than or equal to string word "94".
+
+---------------------------------------------------------------
+from __future__ import print_function
+import sys
+from operator import add
+
+textFile = spark.sparkContext.textFile("lab3-iot-gendata.txt")
+
+# Output the filtered histogram
+counts = textFile.flatMap(lambda x: x.split(' ')) \
+	.filter(lambda x: (x <= "94" and x > "11")) \
+	.map(lambda x: (x, 1)) \
+	.reduceByKey(add)
+output = counts.collect()
+for (word, count) in output:
+	print("%s: %i" % (word, count))
+---------------------------------------------------------------
+	
+60: 1
+68: 1
+88: 1
+63: 2
+64: 3
+65: 4
+67: 1
+82: 7
+83: 2
+81: 5
+86: 2
+87: 1
+84: 1
+85: 4
+77: 5
+76: 3
+75: 2
+74: 3
+73: 4
+71: 3
+70: 2
+91: 1
+90: 6
+93: 1
+92: 2
+94: 1
+79: 3
+78: 2
+61: 2
+62: 2
+89: 3

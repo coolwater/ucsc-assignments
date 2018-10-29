@@ -1,0 +1,40 @@
+Q2. Explore Filter: Copy and paste these lines to see how to use Map, Filter, and Reduce functions in Spark. Copy and paste
+the session output to submit for this Lab.
+Exploring Filter: The filter method seems to filter out all words that are lexicographically greater than word string "94", in the PySpark WordCount program. Hence you see '101', '104', '100', '102' words still in the list as they are lexicographically smaller than string word "94".
+: 101
+60: 1
+68: 1
+88: 1
+63: 2
+64: 3
+65: 4
+67: 1
+82: 7
+83: 2
+81: 5
+86: 2
+87: 1
+84: 1
+85: 4
+101: 1
+104: 2
+100: 1
+77: 5
+76: 3
+75: 2
+74: 3
+73: 4
+71: 3
+70: 2
+102: 1
+90: 6
+93: 1
+92: 2
+94: 1
+79: 3
+78: 2
+91: 1
+61: 2
+62: 2
+89: 3
+103: 2

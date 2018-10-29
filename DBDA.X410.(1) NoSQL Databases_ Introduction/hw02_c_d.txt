@@ -1,0 +1,38 @@
+// lab2c - only display the state and the name of smallest city in each output document
+db.cityinfo.aggregate( [
+	{ $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+    { $sort: { pop: 1 } },
+    { $group:
+		{
+			_id : "$_id.state",
+			smallestCity: { $first: "$_id.city" }
+		}
+    },
+    { $project : 
+		{ 
+			_id:0, 
+			state : "$_id", 
+			smallestCity : "$smallestCity" 
+		} 
+	},
+])
+
+// lab2d - write the MongoDB javascript shell code needed to get the 3 largest city in each state
+db.cityinfo.aggregate( [
+	{ $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+    { $sort: { pop: -1 } },
+    { $group:
+		{
+			_id : "$_id.state",
+			largestCities: { $push: "$_id.city" },
+
+		}
+    },
+	{ $project : 
+		{ 
+			_id:0, 
+			state : "$_id", 
+			thirdLargestCity : { $arrayElemAt: [ "$largestCities", 2] }
+		} 
+	}
+])

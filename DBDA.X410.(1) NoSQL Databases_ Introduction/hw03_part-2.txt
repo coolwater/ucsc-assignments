@@ -1,0 +1,212 @@
+//
+// NoSQL #3 The Airports and Starbucks Assignment 
+// Student: Sheetal Gangakhedkar
+// Create a new collection within the GeoDB called starbucks and add documents for the 10 Starbucks you got addresses and coordinate for
+// https://www.starbucks.com/store-locator
+// Get the longitude and latitude for each address
+// http://www.latlong.net/convert-address-to-lat-long.html
+//
+use starbucks
+
+db.locations.insert(
+  {
+    "address" : "3113 Mission College, #5",
+    "city" : "Santa Clara",
+    "state" : "CA",
+	"zip" : 95054,
+    "loc" : [ -121.983468, 37.389151 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "3700 Thomas Road",
+    "city" : "Santa Clara",
+    "state" : "CA",
+	"zip" : 95054,
+    "loc" : [ -121.960817, 37.386281 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "3555 Monroe Street, #65",
+    "city" : "Santa Clara",
+    "state" : "CA",
+	"zip" : 95051,
+    "loc" : [ -121.994308, 37.367554 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "3970 Rivermark Plaza",
+    "city" : "Santa Clara",
+    "state" : "CA",
+	"zip" : 95054,
+    "loc" : [ -121.947658, 37.394812 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "95 Holger Wy",
+    "city" : "San Jose",
+    "state" : "CA",
+	"zip" : 95134,
+    "loc" : [ -121.956146, 37.418071 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "55 River Oaks Place, #40",
+    "city" : "San Jose",
+    "state" : "CA",
+	"zip" : 95134,
+    "loc" : [ -121.941315, 37.401944 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "460 N Mathilda Avenue",
+    "city" : "Sunnyvale",
+    "state" : "CA",
+	"zip" : 94085,
+    "loc" : [ -122.030356, 37.388282 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "31 Rio Robles East",
+    "city" : "San Jose",
+    "state" : "CA",
+	"zip" : 95134,
+    "loc" : [ -121.941785, 37.406520 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "3605 El Camino Real",
+    "city" : "Santa Clara",
+    "state" : "CA",
+	"zip" : 95051,
+    "loc" : [ -121.997324, 37.352975 ]
+  }
+)
+db.locations.insert(
+  {
+    "address" : "2370 El Camino Real",
+    "city" : "Santa Clara",
+    "state" : "CA",
+	"zip" : 95050,
+    "loc" : [ -121.967785, 37.351712 ]
+  }
+)
+
+// GeoLocation of UCSC Extension
+// address: 3175 Bowers Ave, Santa Clara, CA 95054
+// location : [ -121.976983, 37.379642 ]
+
+
+use starbucks;
+db.locations.createIndex( {loc: "2dsphere" } )
+db.locations.getIndexes()
+db.locations.find(
+  {
+    loc : {
+      $near : {
+        $geometry : { 
+          type : "Point" , 
+          coordinates : [-121.976983,37.379642]  
+        }
+      }
+    }
+  },
+  {
+    address : 1,
+    city : 1,
+	state : 1,
+	zip : 1,
+    _id : 0
+  }
+);
+
+use starbucks
+db.locations.createIndex( { "loc" : "2d" } );
+var SBbyDist = db.locations.find(
+  {
+    "loc" : {
+        $near : [ -121.976983, 37.379642],
+		$maxDistance : 24193
+	  }
+  },
+  {
+    address : 1,
+    city : 1,
+	state : 1,
+	zip : 1,
+	loc : 1,
+    _id : 0
+  }
+);
+SBbyDist.count()
+nearestSB = SBbyDist[0]
+farthestSB = SBbyDist[9]
+
+use geodb
+db.airports.createIndex( {loc: "2dsphere" } )
+db.airports.getIndexes()
+
+// Find all airports within 300 miles of the Starbucks closest to the UCSC extension in the collection of 10 Starbucks
+var nearestSBAirports = db.airports.find(
+	{
+		loc: {
+			$near : {
+				$geometry : {
+					type: "Point",
+					coordinates : [ nearestSB.loc[0], nearestSB.loc[1] ]
+				},
+				$maxDistance : 483871
+			}
+		}
+	},
+	{
+		name : 1,
+		code : 1,
+		_id : 0
+	}
+)
+nearestSBAirports.count();
+nearestSBAirports;
+
+// Find all airports within 500 miles of the furthest Starbucks in the collection of 10 Starbucks
+var farthestSBAirports = db.airports.find(
+	{
+		loc: {
+			$near : {
+				$geometry : {
+					type: "Point",
+					coordinates : [ farthestSB.loc[0], farthestSB.loc[1] ]
+				},
+				$maxDistance : 806452
+			}
+		}
+	},
+	{
+		name : 1,
+		code : 1,
+		_id : 0
+	}
+)
+farthestSBAirports.count();
+farthestSBAirports;
+
+// Find the average distance to a Starbucks (from the collection of 10) from the UCSC extension.
+use starbucks
+db.locations.createIndex( { "loc" : "2dsphere" } );
+var nearSBs = db.runCommand(
+  {
+    geoNear : "locations",
+    near : [ -121.976983, 37.379642],
+	spherical : true,
+	distanceMultiplier: 3963.2
+  }
+);
+
+print("average distance of Starbucks from UCSC = " + nearSBs.stats.avgDistance + " miles");

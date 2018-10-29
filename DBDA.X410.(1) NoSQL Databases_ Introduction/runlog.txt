@@ -1,0 +1,1977 @@
+> db.states.createIndex( {"loc":"2dsphere"});
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "ok" : 1
+}
+> db.airports.getIndexes();
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "geodb.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "geodb.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+> db.airports.find().limit(1).pretty()
+{
+        "_id" : ObjectId("536b150c30048054e348076c"),
+        "loc" : {
+                "type" : "Point",
+                "coordinates" : [
+                        -88.769896,
+                        34.268103
+                ]
+        },
+        "name" : "Tupelo Municipal",
+        "type" : "Municipal",
+        "code" : "TUP"
+}
+> db.airports.dropIndex("loc_2dsphere");
+{ "nIndexesWas" : 2, "ok" : 1 }
+> db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -73.965355, 40.782865 ]
+... },
+... $maxDistance : 20000
+... }
+... },
+... type: "International"
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+Error: error: {
+        "ok" : 0,
+        "errmsg" : "error processing query: ns=geodb.airportsTree: $and\n    type == \"International\"\n    GEON
+EAR  field=loc maxdist=20000 isNearSphere=0\nSort: {}\nProj: { name: 1.0, code: 1.0, _id: 0.0 }\n planner return
+ed error: unable to find index for $geoNear query",
+        "code" : 2,
+        "codeName" : "BadValue"
+}
+> db.airports.createIndex( {loc: "2dsphere" } )
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "ok" : 1
+}
+> db.airports.getIndexes()
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "geodb.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "geodb.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+> db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -73.965355, 40.782865 ]
+... },
+... $maxDistance : 20000
+... }
+... },
+... type: "International"
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+{ "name" : "La Guardia", "code" : "LGA" }
+{ "name" : "Newark Intl", "code" : "EWR" }
+> db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -73.965355, 40.782865 ]
+... },
+... $minDistance : 21000,
+... $maxDistance : 100000
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+{ "name" : "John F Kennedy Intl", "code" : "JFK" }
+{ "name" : "Essex County", "code" : "CDW" }
+{ "name" : "Morristown Muni", "code" : "MMU" }
+{ "name" : "Westchester County", "code" : "HPN" }
+{ "name" : "Republic", "code" : "FRG" }
+{ "name" : "Long Island Mac Arthur", "code" : "ISP" }
+{ "name" : "Stewart Intl", "code" : "SWF" }
+{ "name" : "Igor I Sikorsky Memorial", "code" : "BDR" }
+{ "name" : "Lakehurst NAES", "code" : "NEL" }
+{ "name" : "Mercer County", "code" : "TTN" }
+{ "name" : "Dutchess County", "code" : "POU" }
+> use starbucks
+
+switched to db starbucks
+>
+> db.locations.insert(
+...   {
+...     "address" : "3113 Mission College, Bldg 5",
+...     "city" : "Santa Clara",
+...     "state" : "CA",
+... "zip" : 95054,
+...     "loc" : [ -121.983468, 37.389151 ]
+...   }
+... )
+db.locations.insWriteResult({ "nInserted" : 1 })
+erdb.locations.insert(
+...   {
+...     "address" : "3700 Thomas Road",
+...     "city" : "Santa Clara",
+...     "state" : "CA",
+... "zip" : 95054,
+...     "loc" : [ -121.960817, 37.386281 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "3555 Monroe Street, #65",
+...     "city" : "Santa Clara",
+...     "state" : "CA",
+... "zip" : 95051,
+...     "loc" : [ -121.994308, 37.367554 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "3970 Rivermark Plaza",
+...     "city" : "Santa Clara",
+...     "state" : "CA",
+... "zip" : 95054,
+...     "loc" : [ -121.947658, 37.394812 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "95 Holger Wy",
+...     "city" : "San Jose",
+...     "state" : "CA",
+... "zip" : 95134,
+...     "loc" : [ -121.956146, 37.418071 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "55 River Oaks Place, #40",
+...     "city" : "San Jose",
+...     "state" : "CA",
+... "zip" : 95134,
+...     "loc" : [ -121.941315, 37.401944 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "460 N Mathilda Avenue",
+...     "city" : "Sunnyvale",
+...     "state" : "CA",
+... "zip" : 94085,
+...     "loc" : [ -122.030356, 37.388282 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "31 Rio Robles East",
+...     "city" : "San Jose",
+...     "state" : "CA",
+... "zip" : 95134,
+...     "loc" : [ -121.941785, 37.406520 ]
+...   }
+... )
+WriteResult({ "nInserted" : 1 })
+> db.locations.insert(
+...   {
+...     "address" : "3605 El Camino Real",
+...     "city" : "Santa Clara",
+...     "state" : "CA",
+... "zip" : 95051,
+...     "loc" : [ -121.997324, 37.352975 ]
+...   }
+... )
+db.WriteResult({ "nInserted" : 1 })
+lodb.locations.insert(
+...   {
+...     "address" : "2370 El Camino Real",
+...     "city" : "Santa Clara",
+...     "state" : "CA",
+... "zip" : 95050,
+...     "loc" : [ -121.967785, 37.351712 ]
+...   }
+... )
+
+WriteResult({ "nInserted" : 1 })
+>
+> db.locations.count()
+10
+> db.locations.find()
+{ "_id" : ObjectId("59fd3398f62b8d1b3037632f"), "address" : "3113 Mission College, Bldg 5", "city" : "Santa Clar
+a", "state" : "CA", "zip" : 95054, "loc" : [ -121.983468, 37.389151 ] }
+{ "_id" : ObjectId("59fd3398f62b8d1b30376330"), "address" : "3700 Thomas Road", "city" : "Santa Clara", "state"
+: "CA", "zip" : 95054, "loc" : [ -121.960817, 37.386281 ] }
+{ "_id" : ObjectId("59fd3398f62b8d1b30376331"), "address" : "3555 Monroe Street, #65", "city" : "Santa Clara", "
+state" : "CA", "zip" : 95051, "loc" : [ -121.994308, 37.367554 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376332"), "address" : "3970 Rivermark Plaza", "city" : "Santa Clara", "sta
+te" : "CA", "zip" : 95054, "loc" : [ -121.947658, 37.394812 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376333"), "address" : "95 Holger Wy", "city" : "San Jose", "state" : "CA",
+ "zip" : 95134, "loc" : [ -121.956146, 37.418071 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376334"), "address" : "55 River Oaks Place, #40", "city" : "San Jose", "st
+ate" : "CA", "zip" : 95134, "loc" : [ -121.941315, 37.401944 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376335"), "address" : "460 N Mathilda Avenue", "city" : "Sunnyvale", "stat
+e" : "CA", "zip" : 94085, "loc" : [ -122.030356, 37.388282 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376336"), "address" : "31 Rio Robles East", "city" : "San Jose", "state" :
+ "CA", "zip" : 95134, "loc" : [ -121.941785, 37.40652 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376337"), "address" : "3605 El Camino Real", "city" : "Santa Clara", "stat
+e" : "CA", "zip" : 95051, "loc" : [ -121.997324, 37.352975 ] }
+{ "_id" : ObjectId("59fd3399f62b8d1b30376338"), "address" : "2370 El Camino Real", "city" : "Santa Clara", "stat
+e" : "CA", "zip" : 95050, "loc" : [ -121.967785, 37.351712 ] }
+> db.airports.createIndex( {loc: "2dsphere" } )
+db.airports.getIndexes()
+var nearestSBAirports = db.airports{
+        "createdCollectionAutomatically" : true,
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "ok" : 1
+}
+.fdb.airports.getIndexes()
+nd([
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "starbucks.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "starbucks.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+
+> var nearestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -121.941315, 37.401944 ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+> nearestSBAirports
+> nearestSBAirports.count()
+0
+> show dbs
+admin          0.000GB
+geodb          0.000GB
+local          0.000GB
+starbucks      0.000GB
+test_database  0.000GB
+testlookup     0.000GB
+usdata         0.002GB
+> use geodbs
+dswitched to db geodbs
+b.db.airports.createIndex( {loc: "2dsphere" } )
+db.airports.get{
+        "createdCollectionAutomatically" : true,
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "ok" : 1
+}
+Indb.airports.getIndexes()
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "geodbs.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "geodbs.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+Aivar nearestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -121.941315, 37.401944 ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+> nearestSBAirports.count();
+0
+> nearestSBAirports;
+> var caap = db.airports.find(
+...  {
+...  loc : { $geoWithin : { $geometry : cal.loc } }
+...  },
+...  { name : 1 , type : 1, code : 1, _id: 0 }
+...  );
+>
+> caap.count()
+0
+> use geodb
+switched to db geodb
+> db.airports.createIndex( {loc: "2dsphere" } )
+db.a{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 2,
+        "numIndexesAfter" : 2,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+irdb.airports.getIndexes()
+var ne[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "geodb.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "geodb.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+arvar nearestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -121.941315, 37.401944 ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+eanearestSBAirports.count();
+31
+> nearestSBAirports;
+{ "name" : "San Jose International", "code" : "SJC" }
+{ "name" : "Metropolitan Oakland Intl", "code" : "OAK" }
+{ "name" : "San Francisco Intl", "code" : "SFO" }
+{ "name" : "Stockton Metropolitan", "code" : "SCK" }
+{ "name" : "Modesto City - County", "code" : "MOD" }
+{ "name" : "Monterey Peninsula", "code" : "MRY" }
+{ "name" : "Travis AFB", "code" : "SUU" }
+{ "name" : "Merced Municipal", "code" : "MCE" }
+{ "name" : "Sacramento Executive", "code" : "SAC" }
+{ "name" : "Sacramento Mather", "code" : "MHR" }
+{ "name" : "Sacramento Metropolitan", "code" : "SMF" }
+{ "name" : "Yuba County", "code" : "MYV" }
+{ "name" : "Fresno Air Terminal", "code" : "FAT" }
+{ "name" : "Paso Robles Muni", "code" : "PRB" }
+{ "name" : "Visalia Muni", "code" : "VIS" }
+{ "name" : "Chico Muni", "code" : "CIC" }
+{ "name" : "San Luis Obispo County", "code" : "SBP" }
+{ "name" : "Reno - Tahoe International", "code" : "RNO" }
+{ "name" : "Santa Maria", "code" : "SMX" }
+{ "name" : "Bishop", "code" : "BIH" }
+Type "it" for more
+> var farthestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ -122.030356, 37.388282 ]
+... },
+... $maxDistance : 806452
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+fafarthestSBAirports.count();
+65
+> farthestSBAirports;
+{ "name" : "San Jose International", "code" : "SJC" }
+{ "name" : "San Francisco Intl", "code" : "SFO" }
+{ "name" : "Metropolitan Oakland Intl", "code" : "OAK" }
+{ "name" : "Stockton Metropolitan", "code" : "SCK" }
+{ "name" : "Monterey Peninsula", "code" : "MRY" }
+{ "name" : "Travis AFB", "code" : "SUU" }
+{ "name" : "Modesto City - County", "code" : "MOD" }
+{ "name" : "Sacramento Executive", "code" : "SAC" }
+{ "name" : "Merced Municipal", "code" : "MCE" }
+{ "name" : "Sacramento Mather", "code" : "MHR" }
+{ "name" : "Sacramento Metropolitan", "code" : "SMF" }
+{ "name" : "Yuba County", "code" : "MYV" }
+{ "name" : "Fresno Air Terminal", "code" : "FAT" }
+{ "name" : "Paso Robles Muni", "code" : "PRB" }
+{ "name" : "Visalia Muni", "code" : "VIS" }
+{ "name" : "Chico Muni", "code" : "CIC" }
+{ "name" : "San Luis Obispo County", "code" : "SBP" }
+{ "name" : "Reno - Tahoe International", "code" : "RNO" }
+{ "name" : "Santa Maria", "code" : "SMX" }
+{ "name" : "Vandenberg AFB", "code" : "VBG" }
+Type "it" for more
+> use starbucks;
+switched to db starbucks
+b.db.locations.find(
+...   {
+...     loc : {
+...       $near : {
+...         $geometry : {
+...           type : "Point" ,
+...           coordinates : [-121.976983,37.379642]
+...         }
+...       }
+...     }
+...   },
+...   {
+...     name : 1,
+...     code : 1,
+...     _id : 0
+...   }
+... );
+Error: error: {
+        "ok" : 0,
+        "errmsg" : "error processing query: ns=starbucks.locationsTree: GEONEAR  field=loc maxdist=1.79769e+308
+isNearSphere=0\nSort: {}\nProj: { name: 1.0, code: 1.0, _id: 0.0 }\n planner returned error: unable to find inde
+x for $geoNear query",
+        "code" : 2,
+        "codeName" : "BadValue"
+}
+> use starbucks;
+switched to db starbucks
+> db.locations.createIndex( {loc: "2dsphere" } )
+locations.getIndexes({
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "ok" : 1
+}
+> db.locations.getIndexes()
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "starbucks.locations"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "starbucks.locations",
+                "2dsphereIndexVersion" : 3
+        }
+]
+dbdb.locations.find(
+...   {
+...     loc : {
+...       $near : {
+...         $geometry : {
+...           type : "Point" ,
+...           coordinates : [-121.976983,37.379642]
+...         }
+...       }
+...     }
+...   },
+...   {
+...     name : 1,
+...     code : 1,
+...     _id : 0
+...   }
+... );
+{  }
+{  }
+{  }
+{  }
+{  }
+{  }
+{  }
+{  }
+{  }
+{  }
+>
+> db.locations.find(
+...   {
+...     loc : {
+...       $near : {
+...         $geometry : {
+...           type : "Point" ,
+...           coordinates : [-121.976983,37.379642]
+...         }
+...       }
+...     }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+{ "address" : "3113 Mission College, Bldg 5", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3700 Thomas Road", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3555 Monroe Street, #65", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "3970 Rivermark Plaza", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "2370 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95050 }
+{ "address" : "3605 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "55 River Oaks Place, #40", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "31 Rio Robles East", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "95 Holger Wy", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "460 N Mathilda Avenue", "city" : "Sunnyvale", "state" : "CA", "zip" : 94085 }
+> db.locations.find(
+...   {
+...     "loc.coordinates" : {
+...       $near : [-121.976983,37.379642],
+...   $maxDistance : (20000/((3.14159/180) * 6371000)
+...     }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+...
+...
+>
+> db.locations.find(
+...   {
+...     "loc.coordinates" : {
+...       $near : [-121.976983,37.379642],
+...   $maxDistance : (20000/((3.14159/180) * 6371000))
+...     }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+Error: error: {
+        "ok" : 0,
+        "errmsg" : "error processing query: ns=starbucks.locationsTree: GEONEAR  field=loc.coordinates maxdist=0
+.179864 isNearSphere=0\nSort: {}\nProj: { address: 1.0, city: 1.0, state: 1.0, zip: 1.0, _id: 0.0 }\n planner re
+turned error: unable to find index for $geoNear query",
+        "code" : 2,
+        "codeName" : "BadValue"
+}
+> db.locations.find(
+...   {
+...     "loc" : {
+...       $near : [-121.976983,37.379642],
+...   $maxDistance : (20000/((3.14159/180) * 6371000))
+...     }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+Error: error: {
+        "ok" : 0,
+        "errmsg" : "error processing query: ns=starbucks.locationsTree: GEONEAR  field=loc maxdist=0.179864 isNe
+arSphere=0\nSort: {}\nProj: { address: 1.0, city: 1.0, state: 1.0, zip: 1.0, _id: 0.0 }\n planner returned error
+: unable to find index for $geoNear query",
+        "code" : 2,
+        "codeName" : "BadValue"
+}
+> db.locations.createIndex( { "loc" : "2d" } );
+db.locations.find(
+  {{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 2,
+        "numIndexesAfter" : 3,
+        "ok" : 1
+}
+
+  db.locations.find(
+...   {
+...     "loc" : {
+...       $near : [-121.976983,37.379642],
+...   $maxDistance : (20000/((3.14159/180) * 6371000))
+...     }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+{ "address" : "3113 Mission College, Bldg 5", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3700 Thomas Road", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3555 Monroe Street, #65", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "2370 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95050 }
+{ "address" : "3970 Rivermark Plaza", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3605 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "55 River Oaks Place, #40", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "95 Holger Wy", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "31 Rio Robles East", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "460 N Mathilda Avenue", "city" : "Sunnyvale", "state" : "CA", "zip" : 94085 }
+> db.locations.getIndexes()
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "starbucks.locations"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "starbucks.locations",
+                "2dsphereIndexVersion" : 3
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2d"
+                },
+                "name" : "loc_2d",
+                "ns" : "starbucks.locations"
+        }
+]
+> db.locations.createIndex( { "loc" : "2d" } );
+db.{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+lodb.locations.find(
+...   {
+...     "loc" : {
+...       $near : {
+...   $geometry: { type: "Point",
+...   coordinates : [-121.976983,37.379642]
+... },
+...   $maxDistance : (20000/((3.14159/180) * 6371000))
+...     }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+...
+...
+> db.locations.createIndex( { "loc" : "2d" } );
+  {
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+> db.locations.find(
+...   {
+...     "loc" : {
+...       $near : {
+... $geometry: {
+... type: "Point",
+... coordinates : [-121.976983,37.379642]
+... },
+... $maxDistance : 24193
+...   }
+... }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+{ "address" : "3113 Mission College, Bldg 5", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3700 Thomas Road", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3555 Monroe Street, #65", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "3970 Rivermark Plaza", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "2370 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95050 }
+{ "address" : "3605 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "55 River Oaks Place, #40", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "31 Rio Robles East", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "95 Holger Wy", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "460 N Mathilda Avenue", "city" : "Sunnyvale", "state" : "CA", "zip" : 94085 }
+> db.locations.createIndex( { "loc" : "2d" } );
+b.locati{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+ondb.locations.find(
+...   {
+...     "loc" : {
+...         $near : [-121.976983,37.379642],
+... $maxDistance : 24193
+      }
+... }
+...   },
+2017-11-04T07:16:30.875+0000 E QUERY    [thread1] SyntaxError: missing ) after argument list @(shell):8:2
+>   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+2017-11-04T07:16:30.962+0000 E QUERY    [thread1] SyntaxError: missing ; before statement @(shell):3:9
+> );
+2017-11-04T07:16:30.989+0000 E QUERY    [thread1] SyntaxError: expected expression, got ')' @(shell):1:0
+> db.locations.createIndex( { "loc" : "2d" } );
+db.l{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+ocdb.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+{ "address" : "3113 Mission College, Bldg 5", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3700 Thomas Road", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3555 Monroe Street, #65", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "2370 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95050 }
+{ "address" : "3970 Rivermark Plaza", "city" : "Santa Clara", "state" : "CA", "zip" : 95054 }
+{ "address" : "3605 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95051 }
+{ "address" : "55 River Oaks Place, #40", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "95 Holger Wy", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "31 Rio Robles East", "city" : "San Jose", "state" : "CA", "zip" : 95134 }
+{ "address" : "460 N Mathilda Avenue", "city" : "Sunnyvale", "state" : "CA", "zip" : 94085 }
+> db.locations.createIndex( { "loc" : "2d" } );
+var S{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+B>var SBbyDist = db.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+...     _id : 0
+...   }
+... );
+> SBbyDist.count()
+SBbyDi10
+> SBbyDist[0]
+{
+        "address" : "3113 Mission College, Bldg 5",
+        "city" : "Santa Clara",
+        "state" : "CA",
+        "zip" : 95054
+}
+> SBbyDist[9]
+{
+        "address" : "460 N Mathilda Avenue",
+        "city" : "Sunnyvale",
+        "state" : "CA",
+        "zip" : 94085
+}
+> var SBbyDist = db.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+... loc : 1,
+...     _id : 0
+...   }
+... );
+> SBbyDist.count()
+10
+> SBbyDist[0]
+{
+        "address" : "3113 Mission College, Bldg 5",
+        "city" : "Santa Clara",
+        "state" : "CA",
+        "zip" : 95054,
+        "loc" : [
+                -121.983468,
+                37.389151
+        ]
+}
+> SBbyDist[9]
+{
+        "address" : "460 N Mathilda Avenue",
+        "city" : "Sunnyvale",
+        "state" : "CA",
+        "zip" : 94085,
+        "loc" : [
+                -122.030356,
+                37.388282
+        ]
+}
+> nearestSB = SBbyDist[0]
+{
+        "address" : "3113 Mission College, Bldg 5",
+        "city" : "Santa Clara",
+        "state" : "CA",
+        "zip" : 95054,
+        "loc" : [
+                -121.983468,
+                37.389151
+        ]
+}
+fafarthestSB = SBbyDist[9]
+{
+        "address" : "460 N Mathilda Avenue",
+        "city" : "Sunnyvale",
+        "state" : "CA",
+        "zip" : 94085,
+        "loc" : [
+                -122.030356,
+                37.388282
+        ]
+}
+
+>
+> db.airports.createIndex( {loc: "2dsphere" } )
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 2,
+        "numIndexesAfter" : 2,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+> db.airports.getIndexes()
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "starbucks.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "starbucks.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+> var nearestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ nearestSB.loc[0], nearestSB.loc[1] ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+> nearestSBAirports.count();
+0
+> nearestSBAirports;
+>
+> ^C
+bye
+ubuntu@ubuntu-xenial:~/nosql$ mongo
+MongoDB shell version v3.4.9
+connecting to: mongodb://127.0.0.1:27017
+MongoDB server version: 3.4.9
+Server has startup warnings:
+2017-10-21T21:27:59.528+0000 I STORAGE  [initandlisten]
+2017-10-21T21:27:59.528+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recomme
+nded with the WiredTiger storage engine
+2017-10-21T21:27:59.528+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes
+-filesystem
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten]
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the databa
+se.
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten] **          Read and write access to data and configurat
+ion is unrestricted.
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten]
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten]
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled
+is 'always'.
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten]
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag i
+s 'always'.
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2017-10-21T21:28:00.238+0000 I CONTROL  [initandlisten]
+> show dbs
+admin          0.000GB
+geodb          0.000GB
+geodbs         0.000GB
+local          0.000GB
+starbucks      0.000GB
+test_database  0.000GB
+testlookup     0.000GB
+usdata         0.002GB
+> db.locations.createIndex( { "loc" : "2d" } );
+var SBbyDist = db.locations.find(
+  {
+{
+        "createdCollectionAutomatically" : true,
+        "numIndexesBefore" : 1,
+        "numIndexesAfter" : 2,
+        "ok" : 1
+}
+> var SBbyDist = db.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+... loc : 1,
+...     _id : 0
+...   }
+... );
+SBSBbyDist.count()
+0
+> use starbucks
+switched to db starbucks
+dbdb.locations.createIndex( { "loc" : "2d" } );
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+> var SBbyDist = db.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+... loc : 1,
+...     _id : 0
+...   }
+... );
+> SBbyDist.count()
+10
+> nearestSB = SBbyDist[0]
+farthestSB = S{
+        "address" : "3113 Mission College, Bldg 5",
+        "city" : "Santa Clara",
+        "state" : "CA",
+        "zip" : 95054,
+        "loc" : [
+                -121.983468,
+                37.389151
+        ]
+}
+> farthestSB = SBbyDist[9]
+{
+        "address" : "460 N Mathilda Avenue",
+        "city" : "Sunnyvale",
+        "state" : "CA",
+        "zip" : 94085,
+        "loc" : [
+                -122.030356,
+                37.388282
+        ]
+}
+> use geodb
+switched to db geodb
+dbdb.airports.createIndex( {loc: "2dsphere" } )
+.airports.getInd{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 2,
+        "numIndexesAfter" : 2,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+exdb.airports.getIndexes()
+[
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "geodb.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "geodb.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+vavar nearestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ nearestSB.loc[0], nearestSB.loc[1] ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+> nearestSBAirports.count();
+nearest31
+> nearestSBAirports;
+{ "name" : "San Jose International", "code" : "SJC" }
+{ "name" : "Metropolitan Oakland Intl", "code" : "OAK" }
+{ "name" : "San Francisco Intl", "code" : "SFO" }
+{ "name" : "Stockton Metropolitan", "code" : "SCK" }
+{ "name" : "Monterey Peninsula", "code" : "MRY" }
+{ "name" : "Modesto City - County", "code" : "MOD" }
+{ "name" : "Travis AFB", "code" : "SUU" }
+{ "name" : "Merced Municipal", "code" : "MCE" }
+{ "name" : "Sacramento Executive", "code" : "SAC" }
+{ "name" : "Sacramento Mather", "code" : "MHR" }
+{ "name" : "Sacramento Metropolitan", "code" : "SMF" }
+{ "name" : "Yuba County", "code" : "MYV" }
+{ "name" : "Fresno Air Terminal", "code" : "FAT" }
+{ "name" : "Paso Robles Muni", "code" : "PRB" }
+{ "name" : "Visalia Muni", "code" : "VIS" }
+{ "name" : "San Luis Obispo County", "code" : "SBP" }
+{ "name" : "Chico Muni", "code" : "CIC" }
+{ "name" : "Reno - Tahoe International", "code" : "RNO" }
+{ "name" : "Santa Maria", "code" : "SMX" }
+{ "name" : "Bishop", "code" : "BIH" }
+Type "it" for more
+> var farthestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ farthestSB.loc[0], farthestSB.loc[1] ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+> farthestSBAirports.count();
+30
+fafarthestSBAirports;
+{ "name" : "San Jose International", "code" : "SJC" }
+{ "name" : "San Francisco Intl", "code" : "SFO" }
+{ "name" : "Metropolitan Oakland Intl", "code" : "OAK" }
+{ "name" : "Stockton Metropolitan", "code" : "SCK" }
+{ "name" : "Monterey Peninsula", "code" : "MRY" }
+{ "name" : "Travis AFB", "code" : "SUU" }
+{ "name" : "Modesto City - County", "code" : "MOD" }
+{ "name" : "Sacramento Executive", "code" : "SAC" }
+{ "name" : "Merced Municipal", "code" : "MCE" }
+{ "name" : "Sacramento Mather", "code" : "MHR" }
+{ "name" : "Sacramento Metropolitan", "code" : "SMF" }
+{ "name" : "Yuba County", "code" : "MYV" }
+{ "name" : "Fresno Air Terminal", "code" : "FAT" }
+{ "name" : "Paso Robles Muni", "code" : "PRB" }
+{ "name" : "Visalia Muni", "code" : "VIS" }
+{ "name" : "Chico Muni", "code" : "CIC" }
+{ "name" : "San Luis Obispo County", "code" : "SBP" }
+{ "name" : "Reno - Tahoe International", "code" : "RNO" }
+{ "name" : "Santa Maria", "code" : "SMX" }
+{ "name" : "Vandenberg AFB", "code" : "VBG" }
+Type "it" for more
+> use starbucks
+switched to db starbucks
+> db.locations.createIndex( { "loc" : "2d" } );
+var {
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+SBvar SBbyDist = db.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+... loc : 1,
+...     _id : 0
+...   }
+... );
+> SBbyDist.count()
+10
+> nearestSB = SBbyDist[0]
+farthestSB = {
+        "address" : "3113 Mission College, Bldg 5",
+        "city" : "Santa Clara",
+        "state" : "CA",
+        "zip" : 95054,
+        "loc" : [
+                -121.983468,
+                37.389151
+        ]
+}
+> farthestSB = SBbyDist[9]
+{
+        "address" : "460 N Mathilda Avenue",
+        "city" : "Sunnyvale",
+        "state" : "CA",
+        "zip" : 94085,
+        "loc" : [
+                -122.030356,
+                37.388282
+        ]
+}
+>
+> use geodb
+switched to db geodb
+> db.airports.createIndex( {loc: "2dsphere" } )
+db.ai{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 2,
+        "numIndexesAfter" : 2,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+rpdb.airports.getIndexes()
+var [
+        {
+                "v" : 2,
+                "key" : {
+                        "_id" : 1
+                },
+                "name" : "_id_",
+                "ns" : "geodb.airports"
+        },
+        {
+                "v" : 2,
+                "key" : {
+                        "loc" : "2dsphere"
+                },
+                "name" : "loc_2dsphere",
+                "ns" : "geodb.airports",
+                "2dsphereIndexVersion" : 3
+        }
+]
+> var nearestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ nearestSB.loc[0], nearestSB.loc[1] ]
+... },
+... $maxDistance : 483871
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+nenearestSBAirports.count();
+31
+> nearestSBAirports;
+{ "name" : "San Jose International", "code" : "SJC" }
+{ "name" : "Metropolitan Oakland Intl", "code" : "OAK" }
+{ "name" : "San Francisco Intl", "code" : "SFO" }
+{ "name" : "Stockton Metropolitan", "code" : "SCK" }
+{ "name" : "Monterey Peninsula", "code" : "MRY" }
+{ "name" : "Modesto City - County", "code" : "MOD" }
+
+{ "name" : "Travis AFB", "code" : "SUU" }
+{ "name" : "Merced Municipal", "code" : "MCE" }
+{ "name" : "Sacramento Executive", "code" : "SAC" }
+{ "name" : "Sacramento Mather", "code" : "MHR" }
+{ "name" : "Sacramento Metropolitan", "code" : "SMF" }
+{ "name" : "Yuba County", "code" : "MYV" }
+{ "name" : "Fresno Air Terminal", "code" : "FAT" }
+{ "name" : "Paso Robles Muni", "code" : "PRB" }
+{ "name" : "Visalia Muni", "code" : "VIS" }
+{ "name" : "San Luis Obispo County", "code" : "SBP" }
+{ "name" : "Chico Muni", "code" : "CIC" }
+{ "name" : "Reno - Tahoe International", "code" : "RNO" }
+{ "name" : "Santa Maria", "code" : "SMX" }
+{ "name" : "Bishop", "code" : "BIH" }
+Type "it" for more
+>
+> var farthestSBAirports = db.airports.find(
+... {
+... loc: {
+... $near : {
+... $geometry : {
+... type: "Point",
+... coordinates : [ farthestSB.loc[0], farthestSB.loc[1] ]
+... },
+... $maxDistance : 806452
+... }
+... }
+... },
+... {
+... name : 1,
+... code : 1,
+... _id : 0
+... }
+... )
+fafarthestSBAirports.count();
+fa65
+rtfarthestSBAirports;
+{ "name" : "San Jose International", "code" : "SJC" }
+{ "name" : "San Francisco Intl", "code" : "SFO" }
+{ "name" : "Metropolitan Oakland Intl", "code" : "OAK" }
+{ "name" : "Stockton Metropolitan", "code" : "SCK" }
+{ "name" : "Monterey Peninsula", "code" : "MRY" }
+{ "name" : "Travis AFB", "code" : "SUU" }
+{ "name" : "Modesto City - County", "code" : "MOD" }
+{ "name" : "Sacramento Executive", "code" : "SAC" }
+{ "name" : "Merced Municipal", "code" : "MCE" }
+{ "name" : "Sacramento Mather", "code" : "MHR" }
+{ "name" : "Sacramento Metropolitan", "code" : "SMF" }
+{ "name" : "Yuba County", "code" : "MYV" }
+{ "name" : "Fresno Air Terminal", "code" : "FAT" }
+{ "name" : "Paso Robles Muni", "code" : "PRB" }
+{ "name" : "Visalia Muni", "code" : "VIS" }
+{ "name" : "Chico Muni", "code" : "CIC" }
+{ "name" : "San Luis Obispo County", "code" : "SBP" }
+{ "name" : "Reno - Tahoe International", "code" : "RNO" }
+{ "name" : "Santa Maria", "code" : "SMX" }
+{ "name" : "Vandenberg AFB", "code" : "VBG" }
+Type "it" for more
+> use starbucks
+bswitched to db starbucks
+.ldb.locations.createIndex( { "loc" : "2d" } );
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+> var SBbyDist = db.locations.find(
+...   {
+...     "loc" : {
+...         $near : [ -121.976983, 37.379642],
+... $maxDistance : 24193
+...   }
+...   },
+...   {
+...     address : 1,
+...     city : 1,
+... state : 1,
+... zip : 1,
+... loc : 1,
+... dis : 1,
+...     _id : 0
+...   }
+... );
+> SBbyDist
+{ "address" : "3113 Mission College, Bldg 5", "city" : "Santa Clara", "state" : "CA", "zip" : 95054, "loc" : [ -
+121.983468, 37.389151 ] }
+{ "address" : "3700 Thomas Road", "city" : "Santa Clara", "state" : "CA", "zip" : 95054, "loc" : [ -121.960817,
+37.386281 ] }
+{ "address" : "3555 Monroe Street, #65", "city" : "Santa Clara", "state" : "CA", "zip" : 95051, "loc" : [ -121.9
+94308, 37.367554 ] }
+{ "address" : "2370 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95050, "loc" : [ -121.96778
+5, 37.351712 ] }
+{ "address" : "3970 Rivermark Plaza", "city" : "Santa Clara", "state" : "CA", "zip" : 95054, "loc" : [ -121.9476
+58, 37.394812 ] }
+{ "address" : "3605 El Camino Real", "city" : "Santa Clara", "state" : "CA", "zip" : 95051, "loc" : [ -121.99732
+4, 37.352975 ] }
+{ "address" : "55 River Oaks Place, #40", "city" : "San Jose", "state" : "CA", "zip" : 95134, "loc" : [ -121.941
+315, 37.401944 ] }
+{ "address" : "95 Holger Wy", "city" : "San Jose", "state" : "CA", "zip" : 95134, "loc" : [ -121.956146, 37.4180
+71 ] }
+{ "address" : "31 Rio Robles East", "city" : "San Jose", "state" : "CA", "zip" : 95134, "loc" : [ -121.941785, 3
+7.40652 ] }
+{ "address" : "460 N Mathilda Avenue", "city" : "Sunnyvale", "state" : "CA", "zip" : 94085, "loc" : [ -122.03035
+6, 37.388282 ] }
+> use starbucks
+dswitched to db starbucks
+b.db.locations.createIndex( { "loc" : "2dsphere" } );
+{
+        "createdCollectionAutomatically" : false,
+        "numIndexesBefore" : 3,
+        "numIndexesAfter" : 3,
+        "note" : "all indexes already exist",
+        "ok" : 1
+}
+> var SBbySphDist = db.locations.find(
+...   {
+...     geoNear : "locations",
+...     near : [ -121.976983, 37.379642],
+... spherical : true
+...   }
+... );
+> SBbySphDist
+> SBbySphDist.count()
+0
+> db.runCommand(
+...   {
+...     geoNear : "locations",
+...     near : [ -121.976983, 37.379642],
+... spherical : true,
+... distanceMultiplier: 3963.2
+...   }
+... );
+{
+        "results" : [
+                {
+                        "dis" : 0.748111088210482,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3398f62b8d1b3037632f"),
+                                "address" : "3113 Mission College, Bldg 5",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95054,
+                                "loc" : [
+                                        -121.983468,
+                                        37.389151
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.0001863977813512,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3398f62b8d1b30376330"),
+                                "address" : "3700 Thomas Road",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95054,
+                                "loc" : [
+                                        -121.960817,
+                                        37.386281
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.2673190228020725,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3398f62b8d1b30376331"),
+                                "address" : "3555 Monroe Street, #65",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95051,
+                                "loc" : [
+                                        -121.994308,
+                                        37.367554
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.923183616592454,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376332"),
+                                "address" : "3970 Rivermark Plaza",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95054,
+                                "loc" : [
+                                        -121.947658,
+                                        37.394812
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.9970228878594938,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376338"),
+                                "address" : "2370 El Camino Real",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95050,
+                                "loc" : [
+                                        -121.967785,
+                                        37.351712
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.1570706050214956,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376337"),
+                                "address" : "3605 El Camino Real",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95051,
+                                "loc" : [
+                                        -121.997324,
+                                        37.352975
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.494432022579513,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376334"),
+                                "address" : "55 River Oaks Place, #40",
+                                "city" : "San Jose",
+                                "state" : "CA",
+                                "zip" : 95134,
+                                "loc" : [
+                                        -121.941315,
+                                        37.401944
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.6829334269847687,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376336"),
+                                "address" : "31 Rio Robles East",
+                                "city" : "San Jose",
+                                "state" : "CA",
+                                "zip" : 95134,
+                                "loc" : [
+                                        -121.941785,
+                                        37.40652
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.894291660605462,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376333"),
+                                "address" : "95 Holger Wy",
+                                "city" : "San Jose",
+                                "state" : "CA",
+                                "zip" : 95134,
+                                "loc" : [
+                                        -121.956146,
+                                        37.418071
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.9937522728576957,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376335"),
+                                "address" : "460 N Mathilda Avenue",
+                                "city" : "Sunnyvale",
+                                "state" : "CA",
+                                "zip" : 94085,
+                                "loc" : [
+                                        -122.030356,
+                                        37.388282
+                                ]
+                        }
+                }
+        ],
+        "stats" : {
+                "nscanned" : 21,
+                "objectsLoaded" : 10,
+                "avgDistance" : 2.015830300129479,
+                "maxDistance" : 2.9937522728576957,
+                "time" : 4
+        },
+        "ok" : 1
+}
+> var nearSBs = db.runCommand(
+...   {
+...     geoNear : "locations",
+...     near : [ -121.976983, 37.379642],
+... spherical : true,
+... distanceMultiplier: 3963.2
+...   }
+... );
+> nearSBs.results.stats.avgDistance;
+2017-11-04T07:48:38.911+0000 E QUERY    [thread1] TypeError: nearSBs.results.stats is undefined :
+@(shell):1:1
+> nearSBs
+{
+        "results" : [
+                {
+                        "dis" : 0.748111088210482,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3398f62b8d1b3037632f"),
+                                "address" : "3113 Mission College, Bldg 5",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95054,
+                                "loc" : [
+                                        -121.983468,
+                                        37.389151
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.0001863977813512,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3398f62b8d1b30376330"),
+                                "address" : "3700 Thomas Road",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95054,
+                                "loc" : [
+                                        -121.960817,
+                                        37.386281
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.2673190228020725,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3398f62b8d1b30376331"),
+                                "address" : "3555 Monroe Street, #65",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95051,
+                                "loc" : [
+                                        -121.994308,
+                                        37.367554
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.923183616592454,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376332"),
+                                "address" : "3970 Rivermark Plaza",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95054,
+                                "loc" : [
+                                        -121.947658,
+                                        37.394812
+                                ]
+                        }
+                },
+                {
+                        "dis" : 1.9970228878594938,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376338"),
+                                "address" : "2370 El Camino Real",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95050,
+                                "loc" : [
+                                        -121.967785,
+                                        37.351712
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.1570706050214956,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376337"),
+                                "address" : "3605 El Camino Real",
+                                "city" : "Santa Clara",
+                                "state" : "CA",
+                                "zip" : 95051,
+                                "loc" : [
+                                        -121.997324,
+                                        37.352975
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.494432022579513,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376334"),
+                                "address" : "55 River Oaks Place, #40",
+                                "city" : "San Jose",
+                                "state" : "CA",
+                                "zip" : 95134,
+                                "loc" : [
+                                        -121.941315,
+                                        37.401944
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.6829334269847687,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376336"),
+                                "address" : "31 Rio Robles East",
+                                "city" : "San Jose",
+                                "state" : "CA",
+                                "zip" : 95134,
+                                "loc" : [
+                                        -121.941785,
+                                        37.40652
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.894291660605462,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376333"),
+                                "address" : "95 Holger Wy",
+                                "city" : "San Jose",
+                                "state" : "CA",
+                                "zip" : 95134,
+                                "loc" : [
+                                        -121.956146,
+                                        37.418071
+                                ]
+                        }
+                },
+                {
+                        "dis" : 2.9937522728576957,
+                        "obj" : {
+                                "_id" : ObjectId("59fd3399f62b8d1b30376335"),
+                                "address" : "460 N Mathilda Avenue",
+                                "city" : "Sunnyvale",
+                                "state" : "CA",
+                                "zip" : 94085,
+                                "loc" : [
+                                        -122.030356,
+                                        37.388282
+                                ]
+                        }
+                }
+        ],
+        "stats" : {
+                "nscanned" : 21,
+                "objectsLoaded" : 10,
+                "avgDistance" : 2.015830300129479,
+                "maxDistance" : 2.9937522728576957,
+                "time" : 3
+        },
+        "ok" : 1
+}
+> nearSBs.results.stats
+> nearSBs.results
+[
+        {
+                "dis" : 0.748111088210482,
+                "obj" : {
+                        "_id" : ObjectId("59fd3398f62b8d1b3037632f"),
+                        "address" : "3113 Mission College, Bldg 5",
+                        "city" : "Santa Clara",
+                        "state" : "CA",
+                        "zip" : 95054,
+                        "loc" : [
+                                -121.983468,
+                                37.389151
+                        ]
+                }
+        },
+        {
+                "dis" : 1.0001863977813512,
+                "obj" : {
+                        "_id" : ObjectId("59fd3398f62b8d1b30376330"),
+                        "address" : "3700 Thomas Road",
+                        "city" : "Santa Clara",
+                        "state" : "CA",
+                        "zip" : 95054,
+                        "loc" : [
+                                -121.960817,
+                                37.386281
+                        ]
+                }
+        },
+        {
+                "dis" : 1.2673190228020725,
+                "obj" : {
+                        "_id" : ObjectId("59fd3398f62b8d1b30376331"),
+                        "address" : "3555 Monroe Street, #65",
+                        "city" : "Santa Clara",
+                        "state" : "CA",
+                        "zip" : 95051,
+                        "loc" : [
+                                -121.994308,
+                                37.367554
+                        ]
+                }
+        },
+        {
+                "dis" : 1.923183616592454,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376332"),
+                        "address" : "3970 Rivermark Plaza",
+                        "city" : "Santa Clara",
+                        "state" : "CA",
+                        "zip" : 95054,
+                        "loc" : [
+                                -121.947658,
+                                37.394812
+                        ]
+                }
+        },
+        {
+                "dis" : 1.9970228878594938,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376338"),
+                        "address" : "2370 El Camino Real",
+                        "city" : "Santa Clara",
+                        "state" : "CA",
+                        "zip" : 95050,
+                        "loc" : [
+                                -121.967785,
+                                37.351712
+                        ]
+                }
+        },
+        {
+                "dis" : 2.1570706050214956,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376337"),
+                        "address" : "3605 El Camino Real",
+                        "city" : "Santa Clara",
+                        "state" : "CA",
+                        "zip" : 95051,
+                        "loc" : [
+                                -121.997324,
+                                37.352975
+                        ]
+                }
+        },
+        {
+                "dis" : 2.494432022579513,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376334"),
+                        "address" : "55 River Oaks Place, #40",
+                        "city" : "San Jose",
+                        "state" : "CA",
+                        "zip" : 95134,
+                        "loc" : [
+                                -121.941315,
+                                37.401944
+                        ]
+                }
+        },
+        {
+                "dis" : 2.6829334269847687,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376336"),
+                        "address" : "31 Rio Robles East",
+                        "city" : "San Jose",
+                        "state" : "CA",
+                        "zip" : 95134,
+                        "loc" : [
+                                -121.941785,
+                                37.40652
+                        ]
+                }
+        },
+        {
+                "dis" : 2.894291660605462,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376333"),
+                        "address" : "95 Holger Wy",
+                        "city" : "San Jose",
+                        "state" : "CA",
+                        "zip" : 95134,
+                        "loc" : [
+                                -121.956146,
+                                37.418071
+                        ]
+                }
+        },
+        {
+                "dis" : 2.9937522728576957,
+                "obj" : {
+                        "_id" : ObjectId("59fd3399f62b8d1b30376335"),
+                        "address" : "460 N Mathilda Avenue",
+                        "city" : "Sunnyvale",
+                        "state" : "CA",
+                        "zip" : 94085,
+                        "loc" : [
+                                -122.030356,
+                                37.388282
+                        ]
+                }
+        }
+]
+> nearSBs.stats
+{
+        "nscanned" : 21,
+        "objectsLoaded" : 10,
+        "avgDistance" : 2.015830300129479,
+        "maxDistance" : 2.9937522728576957,
+        "time" : 3
+}
+> nearSBs.stats.avgDistance
+2.015830300129479
+> nearSBs.stats.avgDistance;
+2.015830300129479
+> console.log("average distance of Starbucks from UCSC = " + nearSBs.stats.avgDistance);
+2017-11-04T07:50:56.919+0000 E QUERY    [thread1] ReferenceError: console is not defined :
+@(shell):1:1
+> print("average distance of Starbucks from UCSC = " + nearSBs.stats.avgDistance);
+average distance of Starbucks from UCSC = 2.015830300129479
+> print("average distance of Starbucks from UCSC = " + nearSBs.stats.avgDistance + " miles");
+average distance of Starbucks from UCSC = 2.015830300129479 miles
+>
